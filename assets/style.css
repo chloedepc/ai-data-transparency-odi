@@ -1,0 +1,131 @@
+body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: white;
+    margin: 0;
+    padding: 0;
+}
+
+.table-title {
+  color: #072589;
+  font-weight: bold;
+  font-size: 20px;
+  margin-bottom: 10px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.data-table {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  text-align: left;
+  color: #000000;
+  padding: 40px;
+}
+
+.section {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  padding: 40px;
+  justify-content: center;
+  background-color: white;
+}
+
+.section p {
+color: #000000;
+}
+
+.section h1, 
+.section h2,
+.section h4 {
+  color: #072589;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.section h1 {
+  font-size: 2.5rem;
+}
+
+.section h2 {
+  font-size: 2rem;
+}
+
+.section h4 {
+  font-size: 1.4rem;
+}
+
+.section .markdown-text {
+    color:#000000
+}
+
+.sidebar {
+    width: 40%;
+    padding: 40px;
+    background-color: white;
+}
+
+.sidebar h2,
+.sidebar h4 {
+  color: #072589;
+}
+.sidebar .markdown-text {
+  color: #000000;
+}
+
+.visual {
+    width: 60%;
+    padding: 40px;
+    background-color: white;
+    border-radius:10px;
+    margin-bottom: 30px;
+    color: #000000;
+}
+
+.full-width-text {
+  width: 100%;
+  padding: 40px 60px 30px 60px;  /* top, right, bottom, left */
+  background-color: #E2E6E9;
+  color: #000000;
+  box-sizing: border-box;
+}
+
+.full-width-text h1 {
+  color: #072589;
+  font-weight: bold;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  margin-top: 0;  /* Remove excess top margin */
+}
+
+.full-width-text h4 {
+  color: #072589;
+  font-weight: bold;
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+}
+
+.full-width-text p {
+  color: #000000;
+  font-weight: normal;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.insight-box {
+  background-color: #6BF58B;
+  color: #072589;
+  padding: 30px;
+  margin: 40px auto;
+  max-width: 900px;
+  text-align: center;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 18px;
+  font-weight: normal;
+  width: 900px;       
+  border-radius: 0;    
+}
+
+.insight-box h4,
+.insight-box p {
+  color: #072589;
+}
