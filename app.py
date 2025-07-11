@@ -41,7 +41,7 @@ summary.append(["Models Trained from Scratch", f"{trained_models_count} ({percen
 
 # Overall average transparency score
 overall_avg = df_filtered["transparency_score"].mean()
-summary.append(["Overall Average Transparency Score", f"{overall_avg:.2f}/4"])
+summary.append(["Overall Average Transparency Score", f"{overall_avg:.2f}/4.0"])
 
 # Highest/lowest rating org_category
 by_category = df_filtered.groupby("org_category")["transparency_score"].mean()
@@ -111,7 +111,7 @@ parameters_disclosed = (finetuned_df["parameters_disclosed"] == 1).sum()
 
 # Create summary DataFrame
 summary_finetuned = pd.DataFrame([
-    ["Finetuned Models", f"{finetuned_count} ({percent_finetuned:.1f} of total models%)"],
+    ["Finetuned Models", f"{finetuned_count} ({percent_finetuned:.1f}% of total models)"],
     ["% Base Model Transparency", f"{base_model_specified / finetuned_count * 100:.1f}%"],
     ["% Finetune Compute Transparency", f"{finetune_disclosed / finetuned_count * 100:.1f}%"],
     ["% Training Dataset Transparency", f"{training_disclosed / finetuned_count * 100:.1f}%"],
@@ -339,7 +339,7 @@ confidence_fig = px.bar(
     confidence_counts,
     x="confidence",
     y="model_count",
-    title="Confidence Levels for Models Disclosing Training Compute",
+    title="Confidence Levels for Training Compute Estimates",
     labels={
         "confidence": "Confidence Level",
         "model_count": "Number of Models"
@@ -354,9 +354,9 @@ confidence_fig.update_layout(
     yaxis_title="Number of Models",
     font=dict(size=14, family='Helvetica Neue, Helvetica, Arial, sans-serif'),
     plot_bgcolor="#fff",
-    paper_bgcolor="white",
+    paper_bgcolor="#E2E6E9",
     margin=dict(l=20, r=20, t=60, b=20),
-    height=450,
+    height=350,
     bargap=0.3,
     title={'xanchor': 'center', 'x': 0.5}
 )
@@ -440,7 +440,6 @@ app.layout = html.Div([
             dcc.Graph(figure=transparency_hist_fig)
         ], className='visual')
     ], className='section'),
-
 
     # ------ Section 3: Key Insight Box Visual 1 --------
     html.Div([
@@ -576,33 +575,21 @@ app.layout = html.Div([
 
     # ------ Data Transparency Considerations -------
     html.Div([
-        html.H2("Data Transparency Considerations"),
-
         html.Div([
-            html.Div([
-                html.H4("Notes on Data Confidence"),
-                html.P(
-                    "Confidence levels indicate how certain EpochAI is in its estimate of compute values. "
-                    "Most estimates are tagged as 'Confident' or 'Likely', though some are 'Speculative', "
-                    "especially for models with limited public disclosures."
-                ),
-            ], style={"width": "40%"}),
-            
-            html.Div([
-                dcc.Graph(figure=confidence_fig)
-            ], style={"width": "60%", "paddingLeft": "30px"})
-        ], style={
-            "display": "flex",
-            "flexDirection": "row",
-            "gap": "20px",
-            "padding": "30px",
-            "backgroundColor": "#E2E6E9",
-            "borderRadius": "12px"
-        })
-    ], className="section")
-
+            html.H2("Data Transparency Considerations"),
+            html.H4("Notes on Data Confidence"),
+            dcc.Markdown("""
+                Confidence levels indicate how certain EpochAI is in its estimate of compute values. Most estimates are tagged as 
+                'Confident' or 'Likely', though some are 'Speculative', especially for models with limited public disclosures.
+                        """
+                    ),
+                ], className='notes-sidebar'),
+ 
+        html.Div([
+            dcc.Graph(figure=confidence_fig)
+            ], className='notes-visual')
+    ], className='notes-section'),
 ])
-
 
 # ------------ Define Callbacks ----------------
 
@@ -768,7 +755,7 @@ def update_time_series_chart(selected_category):
         color="org_region",
         color_discrete_sequence=region_colors,
         markers=True,
-        title=f"Average Transparency Score Over Time<br><sup> {selected_category} Organizations (3-Year Rolling Average)</sup>",
+        title=f"Average Transparency Score Over Time<br><sup>{selected_category} Developer Organizations (3-Year Rolling Average)</sup>",
         hover_data={"publication_year": True, "avg_score_smoothed": ':.2f', "model_count": True},
         labels={
             "publication_year": "Publication Year",
@@ -799,6 +786,19 @@ def update_time_series_chart(selected_category):
     # Lighten gridlines
     time_series_fig.update_xaxes(showgrid=True, gridcolor='lightgray')
     time_series_fig.update_yaxes(showgrid=True, gridcolor='lightgray')
+
+    # Highlight incomplete year 
+    time_series_fig.add_vrect(
+        x0=2024.5, x1=2025.5,
+        fillcolor="lightgray", opacity=0.3,
+        line_width=0,
+        annotation=dict(
+            text="Partial Year",
+            font=dict(size=11),     # smaller font size
+            align="left"
+        ),
+        annotation_position="top left"  
+    )   
 
     return time_series_fig
 
@@ -854,7 +854,7 @@ def update_component_transparency_chart(selected_category):
             "pct_disclosed": "% Transparency",
             "component": "Transparency Component"
         },
-        title=f"Component-Level Transparency Over Time<br><sup>{selected_category} Organizations</sup>"
+        title=f"Component-Level Transparency Over Time<br><sup>{selected_category} Developer Organizations</sup>"
     )
 
     component_transparency_fig.update_layout(
@@ -878,6 +878,19 @@ def update_component_transparency_chart(selected_category):
     # Update axes
     component_transparency_fig.update_xaxes(showgrid=True, gridcolor='lightgray')
     component_transparency_fig.update_yaxes(showgrid=True, gridcolor='lightgray')
+
+    # Highlight incomplete year 
+    component_transparency_fig.add_vrect(
+        x0=2024.5, x1=2025.5,
+        fillcolor="lightgray", opacity=0.3,
+        line_width=0,
+        annotation=dict(
+            text="Partial Year",
+            font=dict(size=11),     # smaller font size
+            align="left"
+        ),
+        annotation_position="top left"  
+    )   
 
     return component_transparency_fig
 
