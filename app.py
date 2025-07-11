@@ -14,7 +14,7 @@ app = dash.Dash(__name__)
 app.title = "AI Data Transparency (EpochAI Notable AI Models Analysis)"
 
 # ----------------------
-# Create figures & tables
+# Create tables
 # ----------------------
 transparency_hist_fig = px.histogram(df_dashboard, x="transparency_score")
 
@@ -178,7 +178,10 @@ summary_table2 = dash_table.DataTable(
     ]
 )
 
-# -------- Transparency Score Across Model Accessibility Box Plot -------
+
+#----------------------------
+# Data Preparation for figures
+# ---------------------------
 
 # Custom color list from your palette (can extend or truncate as needed)
 custom_colors = [
@@ -187,8 +190,11 @@ custom_colors = [
     "#D60303", "#D73058", "#EF3AAB", "#E6007C", "#B13198", "#722EA5"
 ]
 
+# Region color mapping
+region_colors =["#FF6700", "#2254F4", "#1DD3A7", "#D60303", "#F9BC26"] 
+
 # Color mapping for accessibility types
-color_map = {
+access_color_map = {
     "API access": "#2254F4",
     "Hosted access (no API)": "#00B6FF",
     "Unreleased": "#D60303",
@@ -196,6 +202,18 @@ color_map = {
     "Open weights (unrestricted)": "#F9BC26",
     "Open weights (restricted use)": "#EF3AAB"
 }
+
+# Organization type custom color mapping
+org_color_map = {
+    "Academia": "#2254F4",                         # deep blue
+    "Industry": "#FF6700",                         # vivid orange
+    "Industry-Academia Collaboration": "#1DD3A7",  # teal
+    "Government": "#D60303",                       # bold red
+    "Research Collective": "#C0E236",              # yellow-green
+}
+
+# -------- Transparency Score Across Model Accessibility Box Plot -------
+
 
 # Filter the data
 df_by_access = df_dashboard[df_dashboard["model_accessibility"] != "Unspecified"]
@@ -207,7 +225,7 @@ for access_type in df_by_access["model_accessibility"].unique():
     traces.append(go.Box(
         y=subset["transparency_score"],
         name=access_type,
-        marker_color=color_map.get(access_type, "#CCCCCC"),
+        marker_color=access_color_map.get(access_type, "#CCCCCC"),
         boxpoints="outliers",
         jitter=0.3,
         pointpos=0,
@@ -237,6 +255,53 @@ accessibility_box_plot.update_layout(
     height=600,
     width=800
 )
+
+
+# ----------- Transparency Score Distribution by Organization Type --------------
+
+# Create histogram with direct color mapping
+transparency_hist_fig = px.histogram(
+    df_dashboard,
+    x='transparency_score',
+    color='org_category',
+    nbins=6,
+    width=900,  
+    height=500,
+    barmode='stack',
+    title='Distribution of Transparency Scores by Developer Organization Type',
+    category_orders={"transparency_score": sorted(df_dashboard["transparency_score"].unique())},
+    color_discrete_map=org_color_map,  
+    hover_data=["model", "organization", "link"]
+)
+
+# Update layout
+transparency_hist_fig.update_layout(
+    plot_bgcolor='#f9f9f9',
+    paper_bgcolor='white',
+    font=dict(size=14, family='Helvetica Neue, Helvetica, Arial, sans-serif'),
+    title_font=dict(size=18),
+    width=500,
+    xaxis=dict(
+        title="Transparency Score (0–4)",
+        tickmode='linear',
+        dtick=1,
+        title_font=dict(size=16)
+    ),
+    yaxis=dict(
+        title="Number of Models",
+        title_font=dict(size=16)
+    ),
+    legend=dict(
+        title="Developer Organization Type",
+        orientation="v",
+        bgcolor="rgba(255,255,255,0)",
+        bordercolor="LightGrey",
+        borderwidth=1
+    )
+)
+
+# Adding a border to the bars
+transparency_hist_fig.update_traces(marker_line_width=1, marker_line_color="black")
 
 # ----------------------
 # Define constants and mappings
@@ -369,9 +434,76 @@ app.layout = html.Div([
     html.Div([
         html.H4("Key Insight"),
         html.P("Most open models tend to have higher transparency scores.")
-    ], className='insight-box')
+    ], className='insight-box'),
+
+    # ------- Section 8: Global Transparency Overview ------
+
+    html.Div([
+        html.Div([
+            html.H2("Global Transparency Overview"),
+            dcc.Markdown("""
+            Text Placeholder
+         """)
+        ], className="sidebar"),
+    
+        html.Div([
+            html.Label("Select Start Year:"),
+            dcc.Dropdown(
+                id="start-year-dropdown",
+                options=[{"label": "All Years", "value": "all"}] +
+                            [{"label": str(year), "value": str(year)} for year in sorted(df_dashboard["publication_year"].dropna().unique(), reverse=True)],
+                value="all",
+                clearable=False,
+                placeholder="Start Year",
+            ), 
+            html.Label("Select End Year:", style={"marginTop": "20px"}),
+            dcc.Dropdown(
+                id="end-year-dropdown",
+                options=[{"label": str(year), "value": str(year)} for year in sorted(df_dashboard["publication_year"].dropna().unique(), reverse=True)],
+                value=None,
+                clearable=True,
+                placeholder="End Year",
+            ),
+            dcc.Graph(id="geomap")
+        ], className='visual')
+    ], className='section'),
 
 
+    # ------ Section 9: Key Insight Box Visual 3 --------
+    html.Div([
+        html.H4("Key Insight"),
+        html.P("Most open models tend to have higher transparency scores.")
+    ], className='insight-box'),
+
+
+    # ------ Section 10: Time Series Chart --------
+
+    html.Div([
+        html.Div([
+            html.H2("Transparency Trends Over Time"),
+            dcc.Markdown("""
+            Text Placeholder
+         """)
+        ], className="sidebar"),
+    
+        html.Div([
+            html.Label("Select Developer Organization Type:", style={"marginTop": "20px"}),
+            dcc.Dropdown(
+                id="org-category-dropdown",
+                options=[
+                    {"label": "All", "value": "All"},
+                    {"label": "Academia", "value": "Academia"},
+                    {"label": "Industry", "value": "Industry"},
+                    {"label": "Industry-Academia Collaboration", "value": "Industry-Academia Collaboration"},
+                    {"label": "Research Collective", "value": "Research Collective"},
+                    {"label": "Government", "value": "Government"}
+                    ],
+                value="All",
+                clearable=False
+            ),
+            dcc.Graph(id="time-series-chart")
+        ], className='visual')
+    ], className='section'),
 
 ])
 
@@ -379,7 +511,7 @@ app.layout = html.Div([
 # ------------ Define Callbacks ----------------
 
 
-# Callback
+# Callback heatmap
 @app.callback(
     Output("heatmap-graph", "figure"),
     Input("comparison-dropdown", "value")
@@ -426,6 +558,152 @@ def update_heatmap(comparison_column):
         height=600
     )
     return transparency_heatmap_fig
+
+# Callback geomap
+
+@app.callback(
+    Output("geomap", "figure"),
+    Input("start-year-dropdown", "value"),
+    Input("end-year-dropdown", "value")
+)
+def update_geomap(start_year, end_year):
+    df_map = df_dashboard.copy()
+    df_map = df_map[df_map["org_country"].notna() & (df_map["org_country"] != "Unknown")]
+
+    # Filter by year range if not "all"
+    if start_year != "all":
+        start_year = int(start_year)
+        if end_year is not None:
+            end_year = int(end_year)
+            df_map = df_map[(df_map["publication_year"] >= start_year) & (df_map["publication_year"] <= end_year)]
+        else:
+            df_map = df_map[df_map["publication_year"] >= start_year]
+
+    # Clean country info
+    df_map["org_country"] = df_map["org_country"].str.split(",")
+    df_map = df_map.explode("org_country")
+    df_map["org_country"] = df_map["org_country"].str.strip()
+
+    # Group by country
+    country_avg = (
+        df_map.groupby("org_country")
+        .agg(
+            avg_score=("transparency_score", "mean"),
+            model_count=("model", "count")
+        )
+        .reset_index()
+    )
+
+    # Build map
+    geomap = px.choropleth(
+        country_avg,
+        locations="org_country",
+        locationmode="country names",
+        color="avg_score",
+        hover_name="org_country",
+        hover_data={
+            "avg_score": ':.2f',
+            "model_count": True
+        },
+        color_continuous_scale="Inferno",
+        labels={
+            "avg_score": "Average Transparency Score",
+            "org_country": "Developer Country",
+            "model_count": "Number of Models"
+        },
+        title="Average Transparency Score by Developer Country",
+    )
+
+    geomap.update_layout(
+        geo=dict(showframe=False, showcoastlines=False, projection_type='natural earth'),
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        height=500, 
+        margin=dict(l=10, r=10, t=80, b=10),
+        font=dict(size=14, family='Helvetica Neue, Helvetica, Arial, sans-serif'),
+        title={
+            'x': 0.5,
+            'xanchor': 'center'
+        },
+        coloraxis_colorbar=dict(
+        title="Transparency Score")
+    )
+
+    return geomap
+
+# Callback time-series chart
+
+@app.callback(
+    Output("time-series-chart", "figure"),
+    Input("org-category-dropdown", "value")
+)
+def update_time_series_chart(selected_category):
+    # Filter to recent years and remove 'Unknown' category
+    recent_df = df_dashboard[
+        (df_dashboard["publication_year"] >= 2015) &
+        (df_dashboard["org_category"] != "Unknown")
+    ]
+
+    # Apply category filter
+    if selected_category != "All":
+        category_df = recent_df[recent_df["org_category"] == selected_category]
+    else:
+        category_df = recent_df.copy()
+
+    # Group and calculate average score
+    grouped_df = (
+        category_df.groupby(["publication_year", "org_region"])
+        .agg(avg_score=("transparency_score", "mean"), model_count=("model", "count"))
+        .reset_index()
+    )
+
+    # Apply 3-year rolling average per region
+    grouped_df["avg_score_smoothed"] = (
+        grouped_df.sort_values(by=["org_region", "publication_year"])
+        .groupby("org_region")["avg_score"]
+        .transform(lambda x: x.rolling(window=3, min_periods=1).mean())
+    )
+
+    # Build line chart
+    time_series_fig = px.line(
+        grouped_df,
+        x="publication_year",
+        y="avg_score_smoothed",
+        color="org_region",
+        color_discrete_sequence=region_colors,
+        markers=True,
+        title=f"Average Transparency Score Over Time ({selected_category} Organizations)<br><sup>(3-Year Rolling Average)</sup>",
+        hover_data={"publication_year": True, "avg_score_smoothed": ':.2f', "model_count": True},
+        labels={
+            "publication_year": "Publication Year",
+            "avg_score_smoothed": "Transparency Score",
+            "org_region": "Region",
+            "model_count": "Number of Models"
+        }
+    )
+
+    time_series_fig.update_layout(
+        font=dict(size=14, family='Helvetica Neue, Helvetica, Arial, sans-serif'),
+        legend_title_text="Region",
+        legend=dict(
+            orientation="h",       # horizontal
+            yanchor="top",
+            y=-0.3,                # vertical placement below plot
+            xanchor="center",
+            x=0.5,                 # center legend
+            font=dict(size=11)
+        ),
+        title={'xanchor':'center', 'x': 0.5,},
+        height=400,
+        yaxis=dict(range=[1, 4.1]),
+        margin=dict(l=20, r=20, t=60, b=20),
+    )
+
+    # Lighten gridlines
+    time_series_fig.update_xaxes(showgrid=True, gridcolor='lightgray')
+    time_series_fig.update_yaxes(showgrid=True, gridcolor='lightgray')
+
+    return time_series_fig
 
 
 if __name__ == '__main__':
