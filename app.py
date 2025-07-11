@@ -212,13 +212,20 @@ org_color_map = {
     "Research Collective": "#C0E236",              # yellow-green
 }
 
+transparency_color_map = {
+    "Parameters": "#178CFF",         # bright blue
+    "Training Data": "#C0E236",      # lime green
+    "Dataset Size": "#EF3AAB",       # pink
+    "Training Compute": "#722EA5"    # deep purple
+}
+
 # -------- Transparency Score Across Model Accessibility Box Plot -------
 
 
-# Filter the data
+    # Filter the data
 df_by_access = df_dashboard[df_dashboard["model_accessibility"] != "Unspecified"]
 
-# Build box traces
+    # Build box traces
 traces = []
 for access_type in df_by_access["model_accessibility"].unique():
     subset = df_by_access[df_by_access["model_accessibility"] == access_type]
@@ -235,10 +242,10 @@ for access_type in df_by_access["model_accessibility"].unique():
         showlegend=False
     ))
 
-# Create figure
+    # Create figure
 accessibility_box_plot = go.Figure(data=traces)
 
-# Update layout
+    # Update layout
 accessibility_box_plot.update_layout(
     title="Transparency Score by Model Accessibility Type",
     xaxis_title="Model Accessibility",
@@ -253,34 +260,38 @@ accessibility_box_plot.update_layout(
     font=dict(family='Helvetica Neue, Helvetica, Arial, sans-serif'),
     title_font_size=18,
     height=600,
-    width=800
+    width=700
 )
 
 
 # ----------- Transparency Score Distribution by Organization Type --------------
 
-# Create histogram with direct color mapping
+    # Create histogram with direct color mapping
 transparency_hist_fig = px.histogram(
     df_dashboard,
     x='transparency_score',
     color='org_category',
     nbins=6,
-    width=900,  
+    width=700,  
     height=500,
     barmode='stack',
     title='Distribution of Transparency Scores by Developer Organization Type',
     category_orders={"transparency_score": sorted(df_dashboard["transparency_score"].unique())},
     color_discrete_map=org_color_map,  
-    hover_data=["model", "organization", "link"]
+    hover_data=["org_category"],
+    labels={
+        "transparency_score": "Transparency Score",
+        "org_category": "Developer Organization Type",
+        "count": "Number of Models"
+    }
 )
 
-# Update layout
+    # Update layout
 transparency_hist_fig.update_layout(
     plot_bgcolor='#f9f9f9',
     paper_bgcolor='white',
     font=dict(size=14, family='Helvetica Neue, Helvetica, Arial, sans-serif'),
     title_font=dict(size=18),
-    width=500,
     xaxis=dict(
         title="Transparency Score (0–4)",
         tickmode='linear',
@@ -296,12 +307,61 @@ transparency_hist_fig.update_layout(
         orientation="v",
         bgcolor="rgba(255,255,255,0)",
         bordercolor="LightGrey",
-        borderwidth=1
+        borderwidth=1,
+        font=dict(size=11)
     )
 )
 
-# Adding a border to the bars
-transparency_hist_fig.update_traces(marker_line_width=1, marker_line_color="black")
+    # Adding a border to the bars
+transparency_hist_fig.update_traces(marker_line_width=0.5, marker_line_color="LightGrey")
+
+
+# --------- Confidence Level for Estimates -----------
+
+    # Filter models that provide training compute in the dataset    
+df_conf = df_dashboard[df_dashboard["training_compute_disclosed"] == 1].copy()
+
+    # Count of models per confidence level
+confidence_counts = df_conf["confidence"].value_counts().reset_index()
+confidence_counts.columns = ["confidence", "model_count"]
+
+    # Specify order
+confidence_order = ["Confident", "Likely", "Speculative", "Unknown"]
+confidence_counts["confidence"] = pd.Categorical(
+    confidence_counts["confidence"],
+    categories=confidence_order,
+    ordered=True
+)
+confidence_counts = confidence_counts.sort_values("confidence")
+
+    # Create figure
+confidence_fig = px.bar(
+    confidence_counts,
+    x="confidence",
+    y="model_count",
+    title="Confidence Levels for Models Disclosing Training Compute",
+    labels={
+        "confidence": "Confidence Level",
+        "model_count": "Number of Models"
+    },
+    color_discrete_sequence=["#2254F4"],
+    text="model_count"
+)
+
+    # Layout styling
+confidence_fig.update_layout(
+    xaxis_title="Confidence Level",
+    yaxis_title="Number of Models",
+    font=dict(size=14, family='Helvetica Neue, Helvetica, Arial, sans-serif'),
+    plot_bgcolor="#fff",
+    paper_bgcolor="white",
+    margin=dict(l=20, r=20, t=60, b=20),
+    height=450,
+    bargap=0.3,
+    title={'xanchor': 'center', 'x': 0.5}
+)
+
+confidence_fig.update_traces(marker_line_width=0.5, marker_line_color="LightGrey")
 
 # ----------------------
 # Define constants and mappings
@@ -326,6 +386,7 @@ field_label_map = {
 }
 
 transparency_fields = list(field_label_map.keys())
+
 
 # ----------------------
 # Layout
@@ -469,7 +530,7 @@ app.layout = html.Div([
     ], className='section'),
 
 
-    # ------ Section 9: Key Insight Box Visual 3 --------
+    # ------ Section 9: Key Insight Box Visual 4 --------
     html.Div([
         html.H4("Key Insight"),
         html.P("Most open models tend to have higher transparency scores.")
@@ -501,9 +562,44 @@ app.layout = html.Div([
                 value="All",
                 clearable=False
             ),
-            dcc.Graph(id="time-series-chart")
+            dcc.Graph(id="time-series-chart"),
+            dcc.Graph(id="component-transparency-chart")
         ], className='visual')
     ], className='section'),
+
+
+    # ------ Section 11: Key Insight Box Visual 5 --------
+    html.Div([
+        html.H4("Key Insight"),
+        html.P("Most open models tend to have higher transparency scores.")
+    ], className='insight-box'),
+
+    # ------ Data Transparency Considerations -------
+    html.Div([
+        html.H2("Data Transparency Considerations"),
+
+        html.Div([
+            html.Div([
+                html.H4("Notes on Data Confidence"),
+                html.P(
+                    "Confidence levels indicate how certain EpochAI is in its estimate of compute values. "
+                    "Most estimates are tagged as 'Confident' or 'Likely', though some are 'Speculative', "
+                    "especially for models with limited public disclosures."
+                ),
+            ], style={"width": "40%"}),
+            
+            html.Div([
+                dcc.Graph(figure=confidence_fig)
+            ], style={"width": "60%", "paddingLeft": "30px"})
+        ], style={
+            "display": "flex",
+            "flexDirection": "row",
+            "gap": "20px",
+            "padding": "30px",
+            "backgroundColor": "#E2E6E9",
+            "borderRadius": "12px"
+        })
+    ], className="section")
 
 ])
 
@@ -672,7 +768,7 @@ def update_time_series_chart(selected_category):
         color="org_region",
         color_discrete_sequence=region_colors,
         markers=True,
-        title=f"Average Transparency Score Over Time ({selected_category} Organizations)<br><sup>(3-Year Rolling Average)</sup>",
+        title=f"Average Transparency Score Over Time<br><sup> {selected_category} Organizations (3-Year Rolling Average)</sup>",
         hover_data={"publication_year": True, "avg_score_smoothed": ':.2f', "model_count": True},
         labels={
             "publication_year": "Publication Year",
@@ -688,14 +784,15 @@ def update_time_series_chart(selected_category):
         legend=dict(
             orientation="h",       # horizontal
             yanchor="top",
-            y=-0.3,                # vertical placement below plot
+            y=-0.2,                # vertical placement below plot
             xanchor="center",
             x=0.5,                 # center legend
-            font=dict(size=11)
+            font=dict(size=13)
         ),
         title={'xanchor':'center', 'x': 0.5,},
-        height=400,
-        yaxis=dict(range=[1, 4.1]),
+        width=700,
+        height=500,
+        yaxis=dict(range=[-0.1, 4.1]),
         margin=dict(l=20, r=20, t=60, b=20),
     )
 
@@ -704,6 +801,85 @@ def update_time_series_chart(selected_category):
     time_series_fig.update_yaxes(showgrid=True, gridcolor='lightgray')
 
     return time_series_fig
+
+# Callback transparency components chart
+
+@app.callback(
+    Output("component-transparency-chart", "figure"),
+    Input("org-category-dropdown", "value")
+)
+def update_component_transparency_chart(selected_category):
+    # Filter to recent years and remove 'Unknown' category
+    recent_df = df_dashboard[
+        (df_dashboard["publication_year"] >= 2015) &
+        (df_dashboard["org_category"] != "Unknown")
+    ]
+
+    if selected_category != "All":
+        category_df = recent_df[recent_df["org_category"] == selected_category]
+    else:
+        category_df = recent_df.copy()
+
+    # Group and compute average % disclosed per year
+    field_trends = (
+        category_df
+        .groupby("publication_year")[transparency_fields]
+        .mean()
+        .reset_index()
+    )
+
+    for field in transparency_fields:
+        field_trends[field] *= 100  # Convert to percentage
+
+    # Melt for long format
+    field_trends_long = field_trends.melt(
+        id_vars="publication_year",
+        var_name="component",
+        value_name="pct_disclosed"
+    )
+
+    # Map component labels
+    field_trends_long["component"] = field_trends_long["component"].map(field_label_map)
+
+    # Build figure
+    component_transparency_fig = px.line(
+        field_trends_long,
+        x="publication_year",
+        y="pct_disclosed",
+        color="component",
+        color_discrete_map=transparency_color_map,
+        markers=True,
+        labels={
+            "publication_year": "Publication Year",
+            "pct_disclosed": "% Transparency",
+            "component": "Transparency Component"
+        },
+        title=f"Component-Level Transparency Over Time<br><sup>{selected_category} Organizations</sup>"
+    )
+
+    component_transparency_fig.update_layout(
+        font=dict(size=14, family='Helvetica Neue, Helvetica, Arial, sans-serif'),
+        legend_title_text="Transparency Indicators",
+        legend=dict(
+            orientation="h",       # horizontal
+            yanchor="top",
+            y=-0.2,                # vertical placement below plot
+            xanchor="center",
+            x=0.5,                 # center legend
+            font=dict(size=13)
+        ),
+        title={'xanchor':'center', 'x': 0.5,},
+        width=700,
+        height=500,
+        yaxis=dict(range=[0, 101]),
+        margin=dict(l=20, r=20, t=60, b=20),
+    )
+
+    # Update axes
+    component_transparency_fig.update_xaxes(showgrid=True, gridcolor='lightgray')
+    component_transparency_fig.update_yaxes(showgrid=True, gridcolor='lightgray')
+
+    return component_transparency_fig
 
 
 if __name__ == '__main__':
