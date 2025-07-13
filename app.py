@@ -210,6 +210,7 @@ org_color_map = {
     "Industry-Academia Collaboration": "#1DD3A7",  # teal
     "Government": "#D60303",                       # bold red
     "Research Collective": "#C0E236",              # yellow-green
+    "Unknown": "#08DEF9"
 }
 
 transparency_color_map = {
@@ -223,7 +224,10 @@ transparency_color_map = {
 
 
     # Filter the data
-df_by_access = df_dashboard[df_dashboard["model_accessibility"] != "Unspecified"]
+df_by_access = df_dashboard[
+    (df_dashboard["model_accessibility"] != "Unspecified") &
+    (df_dashboard["transparency_score"].notna())
+]
 
     # Build box traces
 traces = []
@@ -273,7 +277,7 @@ transparency_hist_fig = px.histogram(
     color='org_category',
     nbins=6,
     width=700,  
-    height=500,
+    height=400,
     barmode='stack',
     title='Distribution of Transparency Scores by Developer Organization Type',
     category_orders={"transparency_score": sorted(df_dashboard["transparency_score"].unique())},
@@ -315,6 +319,51 @@ transparency_hist_fig.update_layout(
     # Adding a border to the bars
 transparency_hist_fig.update_traces(marker_line_width=0.5, marker_line_color="LightGrey")
 
+# --------- Variance of Transparency Scores by Organization Type --------
+
+# Filter the data
+df_by_org = df_dashboard[
+    (df_dashboard["transparency_score"].notna())
+]
+
+# Build box traces
+org_box_traces = []
+for org_type in df_by_org["org_category"].unique():
+    subset = df_by_org[df_by_org["org_category"] == org_type]
+    org_box_traces.append(go.Box(
+        y=subset["transparency_score"],
+        name=org_type,
+        marker_color=org_color_map.get(org_type, "#CCCCCC"),
+        boxpoints="outliers",  # only show outliers
+        jitter=0.3,
+        pointpos=0,
+        customdata=np.stack((subset["model"], subset["organization"]), axis=-1),
+        hovertemplate="<b>Model</b>: %{customdata[0]}<br>" +
+                      "<b>Developer Organization</b>: %{customdata[1]}<extra></extra>",
+        showlegend=False
+    ))
+
+# Create figure
+transparency_box_fig = go.Figure(data=org_box_traces)
+
+# Update layout
+transparency_box_fig.update_layout(
+    title="Variation in Transparency Scores by Developer Organization Type",
+    xaxis_title="Developer Organization Type",
+    yaxis_title="Transparency Score",
+    plot_bgcolor='white',
+    xaxis=dict(showgrid=False,
+               tickfont=dict(size=14),
+               title_font=dict(size=16)),
+    yaxis=dict(showgrid=True, gridcolor='lightgrey',
+               tickfont=dict(size=14),
+               title_font=dict(size=16),
+               range=[-0.5, 4.5]),
+    font=dict(family='Helvetica Neue, Helvetica, Arial, sans-serif'),
+    title_font_size=18,
+    height=450,
+    width=600
+)
 
 # --------- Confidence Level for Estimates -----------
 
@@ -353,7 +402,7 @@ confidence_fig.update_layout(
     xaxis_title="Confidence Level",
     yaxis_title="Number of Models",
     font=dict(size=14, family='Helvetica Neue, Helvetica, Arial, sans-serif'),
-    plot_bgcolor="#fff",
+    plot_bgcolor="#E2E6E9",
     paper_bgcolor="#E2E6E9",
     margin=dict(l=20, r=20, t=60, b=20),
     height=350,
@@ -394,22 +443,34 @@ transparency_fields = list(field_label_map.keys())
 app.layout = html.Div([
     # ------- Header & Intro ---------
     html.Div([
-        html.H1("AI Data Transparency: A Deep-Dive into EpochAI's Notable Models Dataset"), 
+        html.H1("AI Data Transparency Landscape: A Deep-Dive into EpochAI's Notable Models Dataset"), 
         html.H4("Overview"),
-        html.P("This dashboard provides an overview of transparency characteristics across AI foundation models based on the EpochAI Notable Models dataset. It highlights trends across model types, organizations, and geographic regions.")
+        dcc.Markdown("""
+                    This page offers a snapshot of transparency across high-impact AI models based on the best available metadata from EpochAI.
+
+                    EpochAI's dataset provides a structured lens into the otherwise opaque development of foundation models. While it is not exhaustive, and many values are estimated or inferred, it offers a rare opportunity to analyze trends in openness across organizations, regions, and time.
+
+                    This dashboard presents a snapshot in time, summarizing the most visible metadata available as of mid-2025. It does not represent a complete inventory of disclosures, nor does it capture every nuance of transparency. Instead, it serves as a starting point to:
+
+                    - Surface patterns in how developers approach transparency  
+                    - Compare organizational practices in disclosure  
+                    - Track changes over time in what gets shared — and what doesn’t
+
+                    The aim is not to rank or evaluate, but to illuminate current practices and help inform the path toward more open and responsible AI development.
+                    """)
     ], className="full-width-text"),
 
-    # ------- Section 1: Tables with Results Summary on the left ---------
+   # ------- Section 1: Tables with Results Summary on the left ---------
+    # html.Div([
+    #     html.H2("What the EpochAI Dataset Reveals About Transparency"),
+    #     ], className="section-title"),
+    
     html.Div([
         # Sidebar narrative:
         html.Div([
-            html.H2("Results Summary"),
+            html.H2("Data Transparency At a Glance"),
             dcc.Markdown("""
             **Key insights**:
-            - Models trained from scratch vs finetuned  
-            - Component-level transparency  
-            - Regional and organizational trends  
-            - Variations in model openness
             """)
         ], className="sidebar"),
 
@@ -423,35 +484,56 @@ app.layout = html.Div([
         ], className="visual")  
     ], className="section"),
 
-
     # ------- Section 2: Histogram with side narrative --------
     html.Div([
         # Transparency Score Distribution Description
         html.Div([
-            html.H2("Transparency Score Distribution"),
+            html.H2("Where do Notable AI Models stand? A Landscape of Transparency Scores"),
             dcc.Markdown("""
-            This histogram shows how AI models are distributed across different transparency scores.
-            Use this to identify clusters, outliers or potential skewness in upstream reporting patterns.
+            Placeholder Text
          """)
         ], className="sidebar"),
 
-        # Transparency Score Distribution Visual
+        # Transparency Score Distribution and Variance Visuals
         html.Div([
-            dcc.Graph(figure=transparency_hist_fig)
+            dcc.Graph(figure=transparency_hist_fig),
+            html.Br(),
+            dcc.Graph(figure=transparency_box_fig)
         ], className='visual')
     ], className='section'),
 
     # ------ Section 3: Key Insight Box Visual 1 --------
     html.Div([
         html.H4("Key Insight"),
-        html.P("Most open models tend to have higher transparency scores.")
+        html.P("Placeholder text.")
     ], className='insight-box'),
 
-    # ------ Section 4: Component-Level Transparency Heatmap -----
+    # ------ Section 4: Transparency Across Model Accessibility -----
 
     html.Div([
         html.Div([
-            html.H2("Component-Level Transparency Heatmap"),
+            html.H2("Does Openness Equal Transparency?"),
+            dcc.Markdown("""
+            Text Placeholder
+         """)
+        ], className="sidebar"),
+    
+        html.Div([
+            dcc.Graph(figure=accessibility_box_plot)
+        ], className='visual')
+    ], className='section'),
+
+    # ------ Section 5: Key Insight Box Visual 2 --------
+    html.Div([
+        html.H4("Key Insight"),
+        html.P("Placeholder text.")
+    ], className='insight-box'),
+
+    # ------ Section 6: Component-Level Transparency Heatmap -----
+
+    html.Div([
+        html.Div([
+            html.H2("Behind the Scores - A Transparency Breakdown"),
             dcc.Markdown("""
             Text Placeholder
          """)
@@ -469,28 +551,7 @@ app.layout = html.Div([
         ], className='visual')
     ], className='section'),
 
-    # ------ Section 5: Key Insight Box Visual 2 --------
-    html.Div([
-        html.H4("Key Insight"),
-        html.P("Most open models tend to have higher transparency scores.")
-    ], className='insight-box'),
-
-   # ------ Section 6: Transparency Across Model Accessibility -----
-
-    html.Div([
-        html.Div([
-            html.H2("Transparency Score Distributions Across Model Openness"),
-            dcc.Markdown("""
-            Text Placeholder
-         """)
-        ], className="sidebar"),
-    
-        html.Div([
-            dcc.Graph(figure=accessibility_box_plot)
-        ], className='visual')
-    ], className='section'),
-
-    # ------ Section 7: Key Insight Box Visual 3 --------
+    # ------ Section 7: Key Insight Box Visual 2 --------
     html.Div([
         html.H4("Key Insight"),
         html.P("Most open models tend to have higher transparency scores.")
@@ -500,7 +561,7 @@ app.layout = html.Div([
 
     html.Div([
         html.Div([
-            html.H2("Global Transparency Overview"),
+            html.H2("Mapping Data Transparency Around the World"),
             dcc.Markdown("""
             Text Placeholder
          """)
@@ -532,7 +593,7 @@ app.layout = html.Div([
     # ------ Section 9: Key Insight Box Visual 4 --------
     html.Div([
         html.H4("Key Insight"),
-        html.P("Most open models tend to have higher transparency scores.")
+        html.P("Placeholder text.")
     ], className='insight-box'),
 
 
@@ -540,7 +601,7 @@ app.layout = html.Div([
 
     html.Div([
         html.Div([
-            html.H2("Transparency Trends Over Time"),
+            html.H2("Is Transparency Improving - or Regressing?"),
             dcc.Markdown("""
             Text Placeholder
          """)
@@ -570,7 +631,7 @@ app.layout = html.Div([
     # ------ Section 11: Key Insight Box Visual 5 --------
     html.Div([
         html.H4("Key Insight"),
-        html.P("Most open models tend to have higher transparency scores.")
+        html.P("Placeholder text.")
     ], className='insight-box'),
 
     # ------ Data Transparency Considerations -------
@@ -603,6 +664,7 @@ def update_heatmap(comparison_column):
     # Filter out 'Unknown' and 'Unspecified'
     df_filtered = df_dashboard[
         df_dashboard[comparison_column].notna() &
+        df_dashboard["transparency_score"].notna() &
         (~df_dashboard[comparison_column].astype(str).isin(["Unknown", "Unspecified"]))
     ].copy()
 
@@ -651,7 +713,9 @@ def update_heatmap(comparison_column):
 )
 def update_geomap(start_year, end_year):
     df_map = df_dashboard.copy()
-    df_map = df_map[df_map["org_country"].notna() & (df_map["org_country"] != "Unknown")]
+    df_map = df_map[(df_map["org_country"].notna()) &
+                    (df_map["transparency_score"].notna()) &
+                    (df_map["org_country"] != "Unknown")]
 
     # Filter by year range if not "all"
     if start_year != "all":
@@ -724,6 +788,7 @@ def update_time_series_chart(selected_category):
     # Filter to recent years and remove 'Unknown' category
     recent_df = df_dashboard[
         (df_dashboard["publication_year"] >= 2015) &
+        (df_dashboard["transparency_score"].notna()) &
         (df_dashboard["org_category"] != "Unknown")
     ]
 
@@ -759,13 +824,15 @@ def update_time_series_chart(selected_category):
         hover_data={"publication_year": True, "avg_score_smoothed": ':.2f', "model_count": True},
         labels={
             "publication_year": "Publication Year",
-            "avg_score_smoothed": "Transparency Score",
+            "avg_score_smoothed": "Average Transparency Score",
             "org_region": "Region",
             "model_count": "Number of Models"
         }
     )
 
     time_series_fig.update_layout(
+        plot_bgcolor='white',         # chart plotting area background
+        paper_bgcolor='white',        # overall canvas background
         font=dict(size=14, family='Helvetica Neue, Helvetica, Arial, sans-serif'),
         legend_title_text="Region",
         legend=dict(
@@ -784,8 +851,17 @@ def update_time_series_chart(selected_category):
     )
 
     # Lighten gridlines
-    time_series_fig.update_xaxes(showgrid=True, gridcolor='lightgray')
-    time_series_fig.update_yaxes(showgrid=True, gridcolor='lightgray')
+    time_series_fig.update_xaxes(
+        showgrid=False,
+        tickmode='array',
+        tickvals=list(range(2015, 2026)),  # ensure all years from 2015 to 2025 inclusive
+        ticktext=[str(year) for year in range(2015, 2026)]
+    )
+
+    time_series_fig.update_yaxes(
+        showgrid=True, 
+        gridcolor='lightgray'
+    )
 
     # Highlight incomplete year 
     time_series_fig.add_vrect(
@@ -812,6 +888,7 @@ def update_component_transparency_chart(selected_category):
     # Filter to recent years and remove 'Unknown' category
     recent_df = df_dashboard[
         (df_dashboard["publication_year"] >= 2015) &
+        (df_dashboard["transparency_score"].notna()) &
         (df_dashboard["org_category"] != "Unknown")
     ]
 
@@ -828,18 +905,34 @@ def update_component_transparency_chart(selected_category):
         .reset_index()
     )
 
+    # Calculate model count
+    model_counts = (
+    category_df
+    .groupby("publication_year")["model"]
+    .count()
+    .reset_index()
+    .rename(columns={"model": "model_count"})
+    )
+
+    # Merge model count into field_trends
+    field_trends = field_trends.merge(model_counts, on="publication_year")
+
     for field in transparency_fields:
         field_trends[field] *= 100  # Convert to percentage
 
     # Melt for long format
     field_trends_long = field_trends.melt(
-        id_vars="publication_year",
+        id_vars=["publication_year", "model_count"], 
         var_name="component",
         value_name="pct_disclosed"
     )
 
+    # Round to 2 decimal places 
+    field_trends_long["pct_disclosed"] = field_trends_long["pct_disclosed"].round(2)
+
     # Map component labels
     field_trends_long["component"] = field_trends_long["component"].map(field_label_map)
+
 
     # Build figure
     component_transparency_fig = px.line(
@@ -849,15 +942,24 @@ def update_component_transparency_chart(selected_category):
         color="component",
         color_discrete_map=transparency_color_map,
         markers=True,
+        hover_data={
+            "publication_year": True,   
+            "pct_disclosed": True,
+            "component": True,          
+            "model_count": True
+            },
         labels={
             "publication_year": "Publication Year",
             "pct_disclosed": "% Transparency",
-            "component": "Transparency Component"
+            "component": "Transparency Component",
+            "model_count": "Number of Models"
         },
         title=f"Component-Level Transparency Over Time<br><sup>{selected_category} Developer Organizations</sup>"
     )
 
     component_transparency_fig.update_layout(
+        plot_bgcolor='white',         # chart plotting area background
+        paper_bgcolor='white',        # overall canvas background
         font=dict(size=14, family='Helvetica Neue, Helvetica, Arial, sans-serif'),
         legend_title_text="Transparency Indicators",
         legend=dict(
@@ -876,8 +978,19 @@ def update_component_transparency_chart(selected_category):
     )
 
     # Update axes
-    component_transparency_fig.update_xaxes(showgrid=True, gridcolor='lightgray')
-    component_transparency_fig.update_yaxes(showgrid=True, gridcolor='lightgray')
+    # x-axis: remove vertical gridlines and ensure only integer years
+    component_transparency_fig.update_xaxes(
+        showgrid=False, 
+        tickmode='array',
+        tickvals=list(range(2015, 2026)),  # ensure all years from 2015 to 2025 inclusive
+        ticktext=[str(year) for year in range(2015, 2026)]
+    )
+  
+   # y-axis 
+    component_transparency_fig.update_yaxes(
+        showgrid=True, 
+        gridcolor='lightgray'
+    )
 
     # Highlight incomplete year 
     component_transparency_fig.add_vrect(
