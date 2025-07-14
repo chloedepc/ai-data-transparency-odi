@@ -192,17 +192,18 @@ custom_colors = [
 
 # Region color mapping
 region_colors = [
-    "#FF6700",  # orange
-    "#2254F4",  # blue
+    "#2254F4",  # deep blue
+    "#FF6700",  # bright orange
     "#1DD3A7",  # teal
-    "#D60303",  # red
-    "#F9BC26"   # yellow
+    "#D73058",  # magenta (red-purple)
+    "#C0E236",  # yellow-green
+    "#722EA5"   # purple (for Cross‑Regional Collaboration)
 ]
 
 # Color mapping for accessibility types
 access_color_map = {
-    "API access": "#2254F4",                    # deep blue
-    "Hosted access (no API)": "#00B6FF",        # bright blue
+    "API access": "#2254F4",             # deep blue
+    "Hosted access (no API)": "#08DEF9", # slightly darker than current "#00B6FF"   
     "Unreleased": "#D60303",                    # bold red
     "Open weights (non-commercial)": "#0DBC37", # green
     "Open weights (unrestricted)": "#F9BC26",   # yellow-orange
@@ -217,7 +218,7 @@ org_color_map = {
     "Government / Public Sector": "#D60303",        # red
     "Research Collective": "#722EA5",               # deep purple
     "Cross-sector Collaboration": "#0DBC37",        # medium green
-    "Unknown": "#08DEF9"                            # sky blue
+    "Unknown": "#A9A9A9"                            # gray for neutrality
 }
 
 transparency_color_map = {
@@ -324,7 +325,14 @@ transparency_hist_fig.update_layout(
 )
 
     # Adding a border to the bars
-transparency_hist_fig.update_traces(marker_line_width=0.5, marker_line_color="LightGrey")
+transparency_hist_fig.update_traces(
+    marker_line_width=0.5, 
+    marker_line_color="LightGrey",
+    hovertemplate="<b>Transparency Score</b>: %{x}<br>" +
+                  "<b>Number of Models</b>: %{y}<br>" +
+                  "<b>Developer Organization Type</b>: %{customdata[0]}<extra></extra>",
+    customdata=df_dashboard[["org_category"]].values
+)
 
 # --------- Variance of Transparency Scores by Organization Type --------
 
