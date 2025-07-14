@@ -191,33 +191,40 @@ custom_colors = [
 ]
 
 # Region color mapping
-region_colors =["#FF6700", "#2254F4", "#1DD3A7", "#D60303", "#F9BC26"] 
+region_colors = [
+    "#FF6700",  # orange
+    "#2254F4",  # blue
+    "#1DD3A7",  # teal
+    "#D60303",  # red
+    "#F9BC26"   # yellow
+]
 
 # Color mapping for accessibility types
 access_color_map = {
-    "API access": "#2254F4",
-    "Hosted access (no API)": "#00B6FF",
-    "Unreleased": "#D60303",
-    "Open weights (non-commercial)": "#67EE67",
-    "Open weights (unrestricted)": "#F9BC26",
-    "Open weights (restricted use)": "#EF3AAB"
+    "API access": "#2254F4",                    # deep blue
+    "Hosted access (no API)": "#00B6FF",        # bright blue
+    "Unreleased": "#D60303",                    # bold red
+    "Open weights (non-commercial)": "#0DBC37", # green
+    "Open weights (unrestricted)": "#F9BC26",   # yellow-orange
+    "Open weights (restricted use)": "#EF3AAB"  # magenta
 }
 
 # Organization type custom color mapping
 org_color_map = {
-    "Academia": "#2254F4",                         # deep blue
-    "Industry": "#FF6700",                         # vivid orange
-    "Industry-Academia Collaboration": "#1DD3A7",  # teal
-    "Government": "#D60303",                       # bold red
-    "Research Collective": "#C0E236",              # yellow-green
-    "Unknown": "#08DEF9"
+    "Academia": "#2254F4",                          # deep blue
+    "Industry": "#FF6700",                          # vivid orange
+    "Industry-Academia Collaboration": "#1DD3A7",   # teal
+    "Government / Public Sector": "#D60303",        # red
+    "Research Collective": "#722EA5",               # deep purple
+    "Cross-sector Collaboration": "#0DBC37",        # medium green
+    "Unknown": "#08DEF9"                            # sky blue
 }
 
 transparency_color_map = {
-    "Parameters": "#178CFF",         # bright blue
-    "Training Data": "#C0E236",      # lime green
-    "Dataset Size": "#EF3AAB",       # pink
-    "Training Compute": "#722EA5"    # deep purple
+    "Parameters": "#178CFF",       # vivid blue
+    "Training Data": "#C0E236",    # chartreuse
+    "Dataset Size": "#EF3AAB",     # pink
+    "Training Compute": "#B13198"  # plum
 }
 
 # -------- Transparency Score Across Model Accessibility Box Plot -------
@@ -415,6 +422,13 @@ confidence_fig.update_traces(marker_line_width=0.5, marker_line_color="LightGrey
 # ----------------------
 # Define constants and mappings
 # ----------------------
+
+# Clean year options
+year_options = sorted(
+    [int(float(y)) for y in df_dashboard["publication_year"].dropna().unique()],
+    reverse=True
+)
+
 dropdown_options = {
     "Developer Region": "org_region",
     "Developer Organization Type": "org_category",
@@ -572,15 +586,15 @@ app.layout = html.Div([
             dcc.Dropdown(
                 id="start-year-dropdown",
                 options=[{"label": "All Years", "value": "all"}] +
-                            [{"label": str(year), "value": str(year)} for year in sorted(df_dashboard["publication_year"].dropna().unique(), reverse=True)],
+                        [{"label": str(year), "value": str(year)} for year in year_options],
                 value="all",
                 clearable=False,
                 placeholder="Start Year",
-            ), 
+            ),
             html.Label("Select End Year:", style={"marginTop": "20px"}),
             dcc.Dropdown(
                 id="end-year-dropdown",
-                options=[{"label": str(year), "value": str(year)} for year in sorted(df_dashboard["publication_year"].dropna().unique(), reverse=True)],
+                options=[{"label": str(year), "value": str(year)} for year in year_options],
                 value=None,
                 clearable=True,
                 placeholder="End Year",
@@ -617,7 +631,8 @@ app.layout = html.Div([
                     {"label": "Industry", "value": "Industry"},
                     {"label": "Industry-Academia Collaboration", "value": "Industry-Academia Collaboration"},
                     {"label": "Research Collective", "value": "Research Collective"},
-                    {"label": "Government", "value": "Government"}
+                    {"label": "Government / Public Sector", "value": "Government"},
+                    {"label": "Cross-sector Collaboration"},
                     ],
                 value="All",
                 clearable=False
@@ -717,14 +732,31 @@ def update_geomap(start_year, end_year):
                     (df_map["transparency_score"].notna()) &
                     (df_map["org_country"] != "Unknown")]
 
-    # Filter by year range if not "all"
+    # Parse year inputs
     if start_year != "all":
-        start_year = int(start_year)
+        try:
+            start_year = int(float(start_year))
+        except ValueError:
+            start_year = None
+    else:
+        start_year = None
+
+    if end_year is not None:
+        try:
+            end_year = int(float(end_year))
+        except ValueError:
+            end_year = None
+
+     # Filter by year range if not "all"   
+    if start_year is not None:
         if end_year is not None:
-            end_year = int(end_year)
-            df_map = df_map[(df_map["publication_year"] >= start_year) & (df_map["publication_year"] <= end_year)]
+            df_map = df_map[
+                (df_map["publication_year"] >= start_year) &
+                (df_map["publication_year"] <= end_year)
+            ]
         else:
             df_map = df_map[df_map["publication_year"] >= start_year]
+
 
     # Clean country info
     df_map["org_country"] = df_map["org_country"].str.split(",")
