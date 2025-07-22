@@ -119,11 +119,11 @@ color: #000000;
 
 .visual {
     width: 60%;
-    padding: 40px;
+    padding: 20px;
     padding-top: 80px;
     background-color: white;
     border-radius:10px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     color: #072589;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif
 }

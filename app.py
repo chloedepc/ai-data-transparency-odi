@@ -259,18 +259,21 @@ accessibility_box_plot = go.Figure(data=traces)
 
     # Update layout
 accessibility_box_plot.update_layout(
-    title="Transparency Score by Model Accessibility Type",
-    xaxis_title="Model Accessibility",
+    title=dict(text="Transparency Score by Model Accessibility Type",
+               pad=dict(b=0),
+               x=0.5,
+               xanchor='center'
+               ),
     yaxis_title="Transparency Score",
     plot_bgcolor='white',
     xaxis=dict(showgrid=False,
-               tickfont=dict(size=14),  
-               title_font=dict(size=16)), 
+               tickfont=dict(size=12),  
+               title_font=dict(size=14)), 
     yaxis=dict(showgrid=True, gridcolor='lightgrey',
-               tickfont=dict(size=14), 
-               title_font=dict(size=16)),
+               tickfont=dict(size=12), 
+               title_font=dict(size=14)),
     font=dict(family='Helvetica Neue, Helvetica, Arial, sans-serif'),
-    title_font_size=18,
+    title_font_size=15,
     height=600,
     width=700
 )
@@ -285,7 +288,7 @@ transparency_hist_fig = px.histogram(
     color='org_category',
     nbins=6,
     width=700,  
-    height=400,
+    height=500,
     barmode='stack',
     title='Distribution of Transparency Scores by Developer Organization Type',
     category_orders={"transparency_score": sorted(df_dashboard["transparency_score"].unique())},
@@ -295,24 +298,30 @@ transparency_hist_fig = px.histogram(
         "transparency_score": "Transparency Score",
         "org_category": "Developer Organization Type",
         "count": "Number of Models"
-    }
+    },
+    opacity=0.7
 )
 
     # Update layout
 transparency_hist_fig.update_layout(
     plot_bgcolor='#f9f9f9',
     paper_bgcolor='white',
-    font=dict(size=14, family='Helvetica Neue, Helvetica, Arial, sans-serif'),
-    title_font=dict(size=18),
+    font=dict(size=12, family='Helvetica Neue, Helvetica, Arial, sans-serif'),
+    title=dict(
+        pad=dict(b=0),
+        x=0.5,
+        xanchor='center'
+        ),
+    title_font=dict(size=15),
     xaxis=dict(
         title="Transparency Score (0–4)",
         tickmode='linear',
         dtick=1,
-        title_font=dict(size=16)
+        title_font=dict(size=14)
     ),
     yaxis=dict(
         title="Number of Models",
-        title_font=dict(size=16)
+        title_font=dict(size=14)
     ),
     legend=dict(
         title="Developer Organization Type",
@@ -324,15 +333,16 @@ transparency_hist_fig.update_layout(
     )
 )
 
-    # Adding a border to the bars
-transparency_hist_fig.update_traces(
-    marker_line_width=0.5, 
-    marker_line_color="LightGrey",
-    hovertemplate="<b>Transparency Score</b>: %{x}<br>" +
-                  "<b>Number of Models</b>: %{y}<br>" +
-                  "<b>Developer Organization Type</b>: %{customdata[0]}<extra></extra>",
-    customdata=df_dashboard[["org_category"]].values
-)
+# Map category to trace index manually
+for trace in transparency_hist_fig.data:
+    category = trace.name  # Each trace's name is the org_category
+    trace.marker.line.width = 1.3  
+    trace.marker.line.color = org_color_map.get(category, "#000000")  # Opaque border in same color
+    trace.hovertemplate = (
+        "<b>Transparency Score</b>: %{x}<br>" +
+        "<b>Number of Models</b>: %{y}<br>" +
+        f"<b>Developer Organization Type</b>: {category}<extra></extra>"
+    )
 
 # --------- Variance of Transparency Scores by Organization Type --------
 
@@ -363,21 +373,24 @@ transparency_box_fig = go.Figure(data=org_box_traces)
 
 # Update layout
 transparency_box_fig.update_layout(
-    title="Variation in Transparency Scores by Developer Organization Type",
-    xaxis_title="Developer Organization Type",
+    title=dict(text="Variation in Transparency Scores by Developer Organization Type",
+               pad=dict(b=0),
+               x=0.5,
+               xanchor='center'
+               ),
     yaxis_title="Transparency Score",
     plot_bgcolor='white',
     xaxis=dict(showgrid=False,
-               tickfont=dict(size=14),
-               title_font=dict(size=16)),
+               tickfont=dict(size=12),
+               title_font=dict(size=14)),
     yaxis=dict(showgrid=True, gridcolor='lightgrey',
-               tickfont=dict(size=14),
-               title_font=dict(size=16),
+               tickfont=dict(size=12),
+               title_font=dict(size=14),
                range=[-0.5, 4.5]),
     font=dict(family='Helvetica Neue, Helvetica, Arial, sans-serif'),
-    title_font_size=18,
-    height=450,
-    width=600
+    title_font_size=15,
+    height=550,
+    width=700
 )
 
 # --------- Confidence Level for Estimates -----------
@@ -465,7 +478,7 @@ transparency_fields = list(field_label_map.keys())
 app.layout = html.Div([
     # ------- Header & Intro ---------
     html.Div([
-        html.H1("AI Data Transparency Landscape: A Deep-Dive into EpochAI's Notable Models Dataset"), 
+        html.H1("AI data transparency landscape: a deep-dive into Epoch AI's Notable Models dataset"), 
         html.H4("Overview"),
         dcc.Markdown("""
                     This page offers a snapshot of transparency across high-impact AI models based on the best available metadata from EpochAI.
@@ -490,7 +503,7 @@ app.layout = html.Div([
     html.Div([
         # Sidebar narrative:
         html.Div([
-            html.H2("Data Transparency At a Glance"),
+            html.H2("Data transparency at a glance"),
             dcc.Markdown("""
             **Key insights**:
             """)
@@ -498,10 +511,10 @@ app.layout = html.Div([
 
         # Main content (tables)
         html.Div([
-            html.H4("Models Trained from Scratch", className="table-title"),
+            html.H4("Models trained from scratch", className="table-title"),
             summary_table1,
             html.Br(),
-            html.H4("Finetuned Models", className="table-title"),
+            html.H4("Finetuned models", className="table-title"),
             summary_table2
         ], className="visual")  
     ], className="section"),
@@ -510,7 +523,7 @@ app.layout = html.Div([
     html.Div([
         # Transparency Score Distribution Description
         html.Div([
-            html.H2("Where do Notable AI Models stand? A Landscape of Transparency Scores"),
+            html.H2("Where do Notable AI models stand? A landscape of transparency scores"),
             dcc.Markdown("""
             Placeholder Text
          """)
@@ -526,7 +539,7 @@ app.layout = html.Div([
 
     # ------ Section 3: Key Insight Box Visual 1 --------
     html.Div([
-        html.H4("Key Insight"),
+        html.H4("Key insight"),
         html.P("Placeholder text.")
     ], className='insight-box'),
 
@@ -534,7 +547,7 @@ app.layout = html.Div([
 
     html.Div([
         html.Div([
-            html.H2("Does Openness Equal Transparency?"),
+            html.H2("Does openness equal transparency?"),
             dcc.Markdown("""
             Text Placeholder
          """)
@@ -547,7 +560,7 @@ app.layout = html.Div([
 
     # ------ Section 5: Key Insight Box Visual 2 --------
     html.Div([
-        html.H4("Key Insight"),
+        html.H4("Key insight"),
         html.P("Placeholder text.")
     ], className='insight-box'),
 
@@ -555,7 +568,7 @@ app.layout = html.Div([
 
     html.Div([
         html.Div([
-            html.H2("Behind the Scores - A Transparency Breakdown"),
+            html.H2("Behind the scores - a transparency breakdown"),
             dcc.Markdown("""
             Text Placeholder
          """)
@@ -575,7 +588,7 @@ app.layout = html.Div([
 
     # ------ Section 7: Key Insight Box Visual 2 --------
     html.Div([
-        html.H4("Key Insight"),
+        html.H4("Key insight"),
         html.P("Most open models tend to have higher transparency scores.")
     ], className='insight-box'),
 
@@ -583,29 +596,29 @@ app.layout = html.Div([
 
     html.Div([
         html.Div([
-            html.H2("Mapping Data Transparency Around the World"),
+            html.H2("Mapping data transparency around the world"),
             dcc.Markdown("""
             Text Placeholder
          """)
         ], className="sidebar"),
     
         html.Div([
-            html.Label("Select Start Year:"),
+            html.Label("Select start year:"),
             dcc.Dropdown(
                 id="start-year-dropdown",
                 options=[{"label": "All Years", "value": "all"}] +
                         [{"label": str(year), "value": str(year)} for year in year_options],
                 value="all",
                 clearable=False,
-                placeholder="Start Year",
+                placeholder="Start year",
             ),
-            html.Label("Select End Year:", style={"marginTop": "20px"}),
+            html.Label("Select end year:", style={"marginTop": "20px"}),
             dcc.Dropdown(
                 id="end-year-dropdown",
                 options=[{"label": str(year), "value": str(year)} for year in year_options],
                 value=None,
                 clearable=True,
-                placeholder="End Year",
+                placeholder="End year",
             ),
             dcc.Graph(id="geomap")
         ], className='visual')
@@ -614,7 +627,7 @@ app.layout = html.Div([
 
     # ------ Section 9: Key Insight Box Visual 4 --------
     html.Div([
-        html.H4("Key Insight"),
+        html.H4("Key insight"),
         html.P("Placeholder text.")
     ], className='insight-box'),
 
@@ -623,14 +636,14 @@ app.layout = html.Div([
 
     html.Div([
         html.Div([
-            html.H2("Is Transparency Improving - or Regressing?"),
+            html.H2("Is transparency improving - or regressing?"),
             dcc.Markdown("""
             Text Placeholder
          """)
         ], className="sidebar"),
     
         html.Div([
-            html.Label("Select Developer Organization Type:", style={"marginTop": "20px"}),
+            html.Label("Select developer organization type:", style={"marginTop": "20px"}),
             dcc.Dropdown(
                 id="org-category-dropdown",
                 options=[
@@ -653,15 +666,15 @@ app.layout = html.Div([
 
     # ------ Section 11: Key Insight Box Visual 5 --------
     html.Div([
-        html.H4("Key Insight"),
+        html.H4("Key insight"),
         html.P("Placeholder text.")
     ], className='insight-box'),
 
     # ------ Data Transparency Considerations -------
     html.Div([
         html.Div([
-            html.H2("Data Transparency Considerations"),
-            html.H4("Notes on Data Confidence"),
+            html.H2("Data transparency considerations"),
+            html.H4("Notes on data confidence"),
             dcc.Markdown("""
                 Confidence levels indicate how certain EpochAI is in its estimate of compute values. Most estimates are tagged as 
                 'Confident' or 'Likely', though some are 'Speculative', especially for models with limited public disclosures.
@@ -716,13 +729,17 @@ def update_heatmap(comparison_column):
     ))
 
     transparency_heatmap_fig.update_layout(
-        title=f"Component-Level Transparency by {column_title_map[comparison_column]}",
-        xaxis_title=column_title_map[comparison_column],
+        title=dict(
+            text=f"Component-Level Transparency by {column_title_map[comparison_column]}",
+            x=0.5,
+            xanchor='center',
+            pad=dict(b=5)
+            ),
         yaxis_title="Transparency Component",
-        xaxis=dict(tickangle=45, tickfont=dict(size=14), title_font=dict(size=16)),
-        yaxis=dict(tickfont=dict(size=14), title_font=dict(size=16)),
+        xaxis=dict(tickangle=45, tickfont=dict(size=12), title_font=dict(size=14)),
+        yaxis=dict(tickfont=dict(size=12), title_font=dict(size=14)),
         font=dict(family='Helvetica Neue, Helvetica, Arial, sans-serif'),
-        title_font_size=20,
+        title_font_size=15,
         height=600
     )
     return transparency_heatmap_fig
@@ -792,7 +809,7 @@ def update_geomap(start_year, end_year):
             "avg_score": ':.2f',
             "model_count": True
         },
-        color_continuous_scale="Inferno",
+        color_continuous_scale=["#EBF7FF", "#D6F0FF","#08DEF9", "#00B6FF", "#178CFF", "#2254F4"],
         labels={
             "avg_score": "Average Transparency Score",
             "org_country": "Developer Country",
@@ -807,10 +824,11 @@ def update_geomap(start_year, end_year):
         paper_bgcolor='white',
         height=500, 
         margin=dict(l=10, r=10, t=80, b=10),
-        font=dict(size=14, family='Helvetica Neue, Helvetica, Arial, sans-serif'),
+        font=dict(size=12, family='Helvetica Neue, Helvetica, Arial, sans-serif'),
         title={
             'x': 0.5,
-            'xanchor': 'center'
+            'xanchor': 'center',
+            'pad':dict(b=5)
         },
         coloraxis_colorbar=dict(
         title="Transparency Score")
@@ -871,17 +889,16 @@ def update_time_series_chart(selected_category):
     )
 
     time_series_fig.update_layout(
-        plot_bgcolor='white',         # chart plotting area background
-        paper_bgcolor='white',        # overall canvas background
-        font=dict(size=14, family='Helvetica Neue, Helvetica, Arial, sans-serif'),
-        legend_title_text="Region",
+        plot_bgcolor='white',         
+        paper_bgcolor='white',        
+        font=dict(size=12, family='Helvetica Neue, Helvetica, Arial, sans-serif'),
         legend=dict(
-            orientation="h",       # horizontal
+            orientation="h",       
             yanchor="top",
-            y=-0.2,                # vertical placement below plot
+            y=-0.2,                
             xanchor="center",
-            x=0.5,                 # center legend
-            font=dict(size=13)
+            x=0.5,                 
+            font=dict(size=12)
         ),
         title={'xanchor':'center', 'x': 0.5,},
         width=700,
@@ -910,7 +927,7 @@ def update_time_series_chart(selected_category):
         line_width=0,
         annotation=dict(
             text="Partial Year",
-            font=dict(size=11),     # smaller font size
+            font=dict(size=11),     
             align="left"
         ),
         annotation_position="top left"  
@@ -998,17 +1015,16 @@ def update_component_transparency_chart(selected_category):
     )
 
     component_transparency_fig.update_layout(
-        plot_bgcolor='white',         # chart plotting area background
-        paper_bgcolor='white',        # overall canvas background
-        font=dict(size=14, family='Helvetica Neue, Helvetica, Arial, sans-serif'),
-        legend_title_text="Transparency Indicators",
+        plot_bgcolor='white',         
+        paper_bgcolor='white',        
+        font=dict(size=12, family='Helvetica Neue, Helvetica, Arial, sans-serif'),
         legend=dict(
-            orientation="h",       # horizontal
+            orientation="h",       
             yanchor="top",
-            y=-0.2,                # vertical placement below plot
+            y=-0.2,               
             xanchor="center",
-            x=0.5,                 # center legend
-            font=dict(size=13)
+            x=0.5,                
+            font=dict(size=12)
         ),
         title={'xanchor':'center', 'x': 0.5,},
         width=700,
@@ -1039,7 +1055,7 @@ def update_component_transparency_chart(selected_category):
         line_width=0,
         annotation=dict(
             text="Partial Year",
-            font=dict(size=11),     # smaller font size
+            font=dict(size=11),    
             align="left"
         ),
         annotation_position="top left"  
