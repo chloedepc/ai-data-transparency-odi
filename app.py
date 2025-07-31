@@ -9,6 +9,11 @@ import numpy as np
 # Load cleaned dataset
 df_dashboard = pd.read_csv("data/epochai_transparency.csv")
 
+# Markdown loader function
+def load_markdown(file_path):
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return f.read()
+
 # Initialize app
 app = dash.Dash(__name__)
 app.title = "AI Data Transparency (EpochAI Notable AI Models Analysis)"
@@ -36,22 +41,22 @@ percent_trained = trained_models_count / total_models * 100
 # Compute group summaries
 summary = []
 
-summary.append(["Models Trained from Scratch", f"{trained_models_count} ({percent_trained:.1f}% of total models)"])
+summary.append(["Models trained from scratch", f"{trained_models_count} ({percent_trained:.1f}% of total models)"])
 
 
 # Overall average transparency score
 overall_avg = df_filtered["transparency_score"].mean()
-summary.append(["Overall Average Transparency Score", f"{overall_avg:.2f}/4.0"])
+summary.append(["Average transparency score", f"{overall_avg:.2f}/4.0"])
 
 # Highest/lowest rating org_category
 by_category = df_filtered.groupby("org_category")["transparency_score"].mean()
-summary.append(["Highest Rating Developer Organization Category", by_category.idxmax()])
-summary.append(["Lowest Rating Developer Organization Category", by_category.idxmin()])
+summary.append(["Highest rating developer organization category", by_category.idxmax()])
+summary.append(["Lowest rating developer organization category", by_category.idxmin()])
 
 # Highest/lowest rating region
 by_region = df_filtered.groupby("org_region")["transparency_score"].mean()
-summary.append(["Highest Rating Developer Region", by_region.idxmax()])
-summary.append(["Lowest Rating Developer Region", by_region.idxmin()])
+summary.append(["Highest rating developer region", by_region.idxmax()])
+summary.append(["Lowest rating developer region", by_region.idxmin()])
 
 # Results by model openness
 # Define access types
@@ -71,22 +76,22 @@ closed_models = [
 open_avg = df_filtered[df_filtered["model_accessibility"].isin(open_weights_models)]["transparency_score"].mean()
 closed_avg = df_filtered[df_filtered["model_accessibility"].isin(closed_models)]["transparency_score"].mean()
 
-summary.append(["Average Transparency Score - Open Weights Models", f"{open_avg:.2f}"])
-summary.append(["Average Transparency Score - Closed Models (API/Unreleased)", f"{closed_avg:.2f}"])
+summary.append(["Average transparency score - open weights models", f"{open_avg:.2f}"])
+summary.append(["Average transparency score - closed models (API/unreleased)", f"{closed_avg:.2f}"])
 
 # % models disclosing each component
 components = {
-    "Parameters Transparency": df_filtered["parameters_disclosed"].mean(),
-    "Training Compute Transparency": df_filtered["training_compute_disclosed"].mean(),
-    "Training Dataset Transparency": df_filtered["training_data_disclosed"].mean(),
-    "Training Dataset Size Transparency": df_filtered["training_dataset_size_disclosed"].mean()
+    "Parameters transparency": df_filtered["parameters_disclosed"].mean(),
+    "Training compute transparency": df_filtered["training_compute_disclosed"].mean(),
+    "Training dataset transparency": df_filtered["training_data_disclosed"].mean(),
+    "Training dataset size transparency": df_filtered["training_dataset_size_disclosed"].mean()
 }
 
 for label, val in components.items():
     summary.append([f"% {label}", f"{val * 100:.1f}%"])
 
 # Create summary DataFrame
-summary_df = pd.DataFrame(summary, columns=["Trained Model Breakdown", "Value"])
+summary_df = pd.DataFrame(summary, columns=["Trained model breakdown", "Value"])
 
 # ----- Summary data for finetuned models ------
 # Identify finetuned models (base model or finetune compute disclosed)
@@ -111,13 +116,13 @@ parameters_disclosed = (finetuned_df["parameters_disclosed"] == 1).sum()
 
 # Create summary DataFrame
 summary_finetuned = pd.DataFrame([
-    ["Finetuned Models", f"{finetuned_count} ({percent_finetuned:.1f}% of total models)"],
-    ["% Base Model Transparency", f"{base_model_specified / finetuned_count * 100:.1f}%"],
-    ["% Finetune Compute Transparency", f"{finetune_disclosed / finetuned_count * 100:.1f}%"],
-    ["% Training Dataset Transparency", f"{training_disclosed / finetuned_count * 100:.1f}%"],
-    ["% Training Dataset Size Transparency", f"{training_size_disclosed / finetuned_count * 100:.1f}%"],
-    ["% Parameters Disclosed Transparency", f"{parameters_disclosed / finetuned_count * 100:.1f}%"],
-], columns=["Finetuned Model Breakdown", "Value"])
+    ["Finetuned models", f"{finetuned_count} ({percent_finetuned:.1f}% of total models)"],
+    ["% Base model transparency", f"{base_model_specified / finetuned_count * 100:.1f}%"],
+    ["% Finetune compute transparency", f"{finetune_disclosed / finetuned_count * 100:.1f}%"],
+    ["% Training dataset transparency", f"{training_disclosed / finetuned_count * 100:.1f}%"],
+    ["% Training dataset size transparency", f"{training_size_disclosed / finetuned_count * 100:.1f}%"],
+    ["% Parameters transparency", f"{parameters_disclosed / finetuned_count * 100:.1f}%"],
+], columns=["Finetuned model breakdown", "Value"])
 
 summary_table1 = dash_table.DataTable(
     columns=[{"name": i, "id": i} for i in summary_df.columns],
@@ -429,13 +434,14 @@ confidence_fig = px.bar(
 confidence_fig.update_layout(
     xaxis_title="Confidence Level",
     yaxis_title="Number of Models",
-    font=dict(size=14, family='Helvetica Neue, Helvetica, Arial, sans-serif'),
+    font=dict(size=12, family='Helvetica Neue, Helvetica, Arial, sans-serif'),
     plot_bgcolor="#E2E6E9",
     paper_bgcolor="#E2E6E9",
     margin=dict(l=20, r=20, t=60, b=20),
     height=350,
     bargap=0.3,
-    title={'xanchor': 'center', 'x': 0.5}
+    title={'xanchor':'center', 'x':0.5},
+    title_font_size=15
 )
 
 confidence_fig.update_traces(marker_line_width=0.5, marker_line_color="LightGrey")
@@ -472,58 +478,80 @@ field_label_map = {
 transparency_fields = list(field_label_map.keys())
 
 
-# ----------------------
-# Layout
-# ----------------------
-app.layout = html.Div([
-    # ------- Header & Intro ---------
+# ---------------------
+# Define tab content
+# ---------------------
+
+odi_sash = html.Div([
+    html.Img(src="/assets/odi-logo.png", className="odi-logo")
+], className="odi-sash")
+
+# Title and intro section
+
+title_intro = html.Div([
+                html.Div([
+                    html.H1("The landscape of AI data transparency: a deep-dive into Epoch AI's Notable Models dataset"), 
+                    dcc.Markdown(load_markdown("text/overview.md"), dangerously_allow_html=True), 
+                ], className="text-inner")
+            ], className="full-width-text")
+
+# About the project section
+
+about_project = html.Div([
     html.Div([
-        html.H1("AI data transparency landscape: a deep-dive into Epoch AI's Notable Models dataset"), 
-        html.H4("Overview"),
-        dcc.Markdown("""
-                    This page offers a snapshot of transparency across high-impact AI models based on the best available metadata from EpochAI.
-
-                    EpochAI's dataset provides a structured lens into the otherwise opaque development of foundation models. While it is not exhaustive, and many values are estimated or inferred, it offers a rare opportunity to analyze trends in openness across organizations, regions, and time.
-
-                    This dashboard presents a snapshot in time, summarizing the most visible metadata available as of mid-2025. It does not represent a complete inventory of disclosures, nor does it capture every nuance of transparency. Instead, it serves as a starting point to:
-
-                    - Surface patterns in how developers approach transparency  
-                    - Compare organizational practices in disclosure  
-                    - Track changes over time in what gets shared — and what doesn’t
-
-                    The aim is not to rank or evaluate, but to illuminate current practices and help inform the path toward more open and responsible AI development.
-                    """)
-    ], className="full-width-text"),
-
-   # ------- Section 1: Tables with Results Summary on the left ---------
-    # html.Div([
-    #     html.H2("What the EpochAI Dataset Reveals About Transparency"),
-    #     ], className="section-title"),
-    
-    html.Div([
-        # Sidebar narrative:
         html.Div([
-            html.H2("Data transparency at a glance"),
-            dcc.Markdown("""
-            **Key insights**:
-            """)
-        ], className="sidebar"),
+            html.H2("About the project"),
+            dcc.Markdown(load_markdown("text/about_project.md")),
+            html.H2("About the researcher"),
+            dcc.Markdown(load_markdown("text/about_researcher.md")),
+            html.H2("Methodology"),
+        ], className='text-inner')
+    ], className="description-text")
+])
 
-        # Main content (tables)
+# Understanding the data section
+
+understanding_data = html.Div([
+    html.Div([
+        html.Div([
+            html.H2("Understanding the dataset"),
+            dcc.Markdown(load_markdown("text/understanding_data.md")),
+            html.H2("Transparency score"),
+            dcc.Markdown(load_markdown("text/transparency_score.md"))
+        ], className='text-inner')
+    ], className='description-text'),
+
+    # Side-by-side tables
+    html.Div([
         html.Div([
             html.H4("Models trained from scratch", className="table-title"),
-            summary_table1,
-            html.Br(),
+            summary_table1
+        ]),
+
+        html.Div([
             html.H4("Finetuned models", className="table-title"),
             summary_table2
-        ], className="visual")  
-    ], className="section"),
+        ])
+    ], className="side-by-side-tables"),
 
-    # ------- Section 2: Histogram with side narrative --------
+    # Text below tables
+    html.Div([
+        html.Div([
+            dcc.Markdown("""
+            Placeholder text. 
+            """),
+        ], className='text-inner')
+    ], className='description-text')
+])
+
+# Visual explorer section
+
+visual_explorer = html.Div([
+     # ------- Section 2: Histogram with side narrative --------
     html.Div([
         # Transparency Score Distribution Description
         html.Div([
-            html.H2("Where do Notable AI models stand? A landscape of transparency scores"),
+            html.H2("Do organizational norms shape transparency?"),
             dcc.Markdown("""
             Placeholder Text
          """)
@@ -537,13 +565,13 @@ app.layout = html.Div([
         ], className='visual')
     ], className='section'),
 
-    # ------ Section 3: Key Insight Box Visual 1 --------
+        # Key Insight Box Visual 1 
     html.Div([
         html.H4("Key insight"),
         html.P("Placeholder text.")
     ], className='insight-box'),
 
-    # ------ Section 4: Transparency Across Model Accessibility -----
+    # ------ Section 3: Transparency Across Model Accessibility -----
 
     html.Div([
         html.Div([
@@ -558,41 +586,13 @@ app.layout = html.Div([
         ], className='visual')
     ], className='section'),
 
-    # ------ Section 5: Key Insight Box Visual 2 --------
+        # Key Insight Box Visual 2 
     html.Div([
         html.H4("Key insight"),
         html.P("Placeholder text.")
     ], className='insight-box'),
 
-    # ------ Section 6: Component-Level Transparency Heatmap -----
-
-    html.Div([
-        html.Div([
-            html.H2("Behind the scores - a transparency breakdown"),
-            dcc.Markdown("""
-            Text Placeholder
-         """)
-        ], className="sidebar"),
-    
-        html.Div([
-            dcc.Dropdown(
-                id="comparison-dropdown",
-                options=[{"label": k, "value": v} for k, v in dropdown_options.items()],
-                value="org_region",  # Default selection
-                clearable=False,
-                # style={"width": "400px", "margin-bottom": "20px"}?
-            ),
-            dcc.Graph(id="heatmap-graph")
-        ], className='visual')
-    ], className='section'),
-
-    # ------ Section 7: Key Insight Box Visual 2 --------
-    html.Div([
-        html.H4("Key insight"),
-        html.P("Most open models tend to have higher transparency scores.")
-    ], className='insight-box'),
-
-    # ------- Section 8: Global Transparency Overview ------
+    # ------- Section 4: Global Transparency Overview ------
 
     html.Div([
         html.Div([
@@ -606,7 +606,7 @@ app.layout = html.Div([
             html.Label("Select start year:"),
             dcc.Dropdown(
                 id="start-year-dropdown",
-                options=[{"label": "All Years", "value": "all"}] +
+                options=[{"label": "All years", "value": "all"}] +
                         [{"label": str(year), "value": str(year)} for year in year_options],
                 value="all",
                 clearable=False,
@@ -625,14 +625,42 @@ app.layout = html.Div([
     ], className='section'),
 
 
-    # ------ Section 9: Key Insight Box Visual 4 --------
+        # Key Insight Box Visual 3
     html.Div([
         html.H4("Key insight"),
         html.P("Placeholder text.")
     ], className='insight-box'),
 
+    # ------ Section 5: Component-Level Transparency Heatmap -----
 
-    # ------ Section 10: Time Series Chart --------
+    html.Div([
+        html.Div([
+            html.H2("Behind the scores - a transparency breakdown"),
+            dcc.Markdown("""
+            Text Placeholder
+         """)
+        ], className="sidebar"),
+    
+        html.Div([
+            html.Label("Select transparency dimension:", style={"marginTop": "20px"}),
+            dcc.Dropdown(
+                id="comparison-dropdown",
+                options=[{"label": k, "value": v} for k, v in dropdown_options.items()],
+                value="org_region",  # Default selection
+                clearable=False,
+            ),
+            dcc.Graph(id="heatmap-graph")
+        ], className='visual')
+    ], className='section'),
+
+        # Key Insight Box Visual 4
+    html.Div([
+        html.H4("Key insight"),
+        html.P("Most open models tend to have higher transparency scores.")
+    ], className='insight-box'),
+
+
+    # ------ Section 6: Time Series Chart --------
 
     html.Div([
         html.Div([
@@ -651,9 +679,6 @@ app.layout = html.Div([
                     {"label": "Academia", "value": "Academia"},
                     {"label": "Industry", "value": "Industry"},
                     {"label": "Industry-Academia Collaboration", "value": "Industry-Academia Collaboration"},
-                    {"label": "Research Collective", "value": "Research Collective"},
-                    {"label": "Government / Public Sector", "value": "Government"},
-                    {"label": "Cross-sector Collaboration"},
                     ],
                 value="All",
                 clearable=False
@@ -664,13 +689,13 @@ app.layout = html.Div([
     ], className='section'),
 
 
-    # ------ Section 11: Key Insight Box Visual 5 --------
+        # Key Insight Box Visual 5
     html.Div([
         html.H4("Key insight"),
         html.P("Placeholder text.")
     ], className='insight-box'),
 
-    # ------ Data Transparency Considerations -------
+            # ------ Data Transparency Considerations -------
     html.Div([
         html.Div([
             html.H2("Data transparency considerations"),
@@ -686,10 +711,40 @@ app.layout = html.Div([
             dcc.Graph(figure=confidence_fig)
             ], className='notes-visual')
     ], className='notes-section'),
+
+])
+
+
+# ----------------------
+# Layout
+# ----------------------
+app.layout = html.Div([
+    odi_sash,
+    title_intro,
+
+    dcc.Tabs(id="main-tabs", value='visual-explorer', children=[
+        dcc.Tab(label='Visual explorer', value='visual-explorer', className='custom-tab', selected_className='custom-tab--selected'),
+        dcc.Tab(label='About the project', value='about-project', className='custom-tab', selected_className='custom-tab--selected'),
+        dcc.Tab(label='Understanding the data', value='understanding-data', className='custom-tab', selected_className='custom-tab--selected'),
+    ]),
+    html.Div(id='tabs-content')
 ])
 
 # ------------ Define Callbacks ----------------
 
+# Tab callbacks
+
+@app.callback(
+    Output('tabs-content', 'children'),
+    Input('main-tabs', 'value')
+)
+def render_tab_content(tab):
+    if tab == 'visual-explorer':
+        return visual_explorer
+    elif tab == 'understanding-data':
+        return understanding_data
+    elif tab == 'about-project':
+        return about_project
 
 # Callback heatmap
 @app.callback(
@@ -736,7 +791,7 @@ def update_heatmap(comparison_column):
             pad=dict(b=5)
             ),
         yaxis_title="Transparency Component",
-        xaxis=dict(tickangle=45, tickfont=dict(size=12), title_font=dict(size=14)),
+        xaxis=dict(tickangle=30, tickfont=dict(size=12), title_font=dict(size=14)),
         yaxis=dict(tickfont=dict(size=12), title_font=dict(size=14)),
         font=dict(family='Helvetica Neue, Helvetica, Arial, sans-serif'),
         title_font_size=15,
@@ -835,6 +890,23 @@ def update_geomap(start_year, end_year):
     )
 
     return geomap
+
+    # Callback to dynamically update end year dropdowns
+
+@app.callback(
+    Output('end-year-dropdown', 'options'),
+    Input('start-year-dropdown', 'value')
+)
+def update_end_year_options(start_year):
+    if start_year == "all":
+        return [{"label": str(year), "value": str(year)} for year in year_options]
+
+    try:
+        start_year = int(start_year)
+        filtered_years = [year for year in year_options if year >= start_year]
+        return [{"label": str(year), "value": str(year)} for year in filtered_years]
+    except:
+        return [{"label": str(year), "value": str(year)} for year in year_options]
 
 # Callback time-series chart
 

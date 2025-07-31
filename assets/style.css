@@ -5,6 +5,20 @@ body {
     padding: 0;
 }
 
+.odi-sash {
+  width: 100%;
+  background-color: #072589;
+  padding: 10px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.odi-logo {
+  height: 80px; 
+  width: auto;
+}
+
 .table-title {
   color: #072589;
   font-weight: bold;
@@ -19,6 +33,19 @@ body {
   text-align: left;
   color: #000000;
   padding: 40px;
+}
+
+.side-by-side-tables {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  padding: 0 60px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.side-by-side-tables > div {
+  width: 48%;
 }
 
 .section {
@@ -128,43 +155,6 @@ color: #000000;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif
 }
 
-.full-width-text {
-  width: 100%;
-  padding: 30px 60px 30px 60px;  /* top, right, bottom, left */
-  background-color: #E2E6E9;
-  color: #000000;
-  box-sizing: border-box;
-}
-
-.full-width-text h1 {
-  color: #072589;
-  font-weight: bold;
-  font-size: 2.5rem;
-  margin-bottom: 10px;
-  margin-top: 0;  /* Remove excess top margin */
-}
-
-.full-width-text h2 {
-  color: #072589;
-  font-weight: bold;
-  font-size: 2rem;
-  margin-bottom: 10px;
-}
-
-.full-width-text h4 {
-  color: #072589;
-  font-weight: bold;
-  font-size: 1.25rem;
-  margin-bottom: 10px;
-}
-
-.full-width-text p {
-  color: #000000;
-  font-weight: normal;
-  font-size: 1rem;
-  line-height: 1.6;
-}
-
 .insight-box {
   background-color: #6BF58B;
   color: #072589;
@@ -234,4 +224,80 @@ color: #000000;
   font-weight: bold;
 }
 
+.custom-tab {
+    color: #072589;
+    font-weight: bold;
+    background-color: #F9F9F9;
+    border: 1px solid #E2E6E9;
+    padding: 10px;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
 
+.custom-tab--selected {
+    background-color: white;
+    border-top: 3px solid #072589;
+    color: #072589 !important;
+    font-weight: bold;
+}
+
+.custom-tab--selected .dash-tab-label {
+    color: #072589 !important;
+}
+
+/* Outer containers — keep background full width */
+.full-width-text,
+.description-text {
+  width: 100%;
+  padding: 30px 0;  /* No horizontal padding here */
+  background-color: #E2E6E9; /* For full-width grey background */
+  color: #000000;
+  box-sizing: border-box;
+}
+
+/* Use .description-text to keep white background if needed */
+.description-text {
+  background-color: white;
+}
+
+/* Inner wrapper — constrain width and center text */
+.full-width-text .text-inner,
+.description-text .text-inner {
+  max-width: 1050px;        
+  margin: 0 auto;
+  padding: 0 30px;         
+  box-sizing: border-box;
+}
+
+/* Heading and paragraph styles for full-width-text */
+.full-width-text h1,
+.description-text h1 {
+  color: #072589;
+  font-weight: bold;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  margin-top: 0;
+}
+
+.full-width-text h2,
+.description-text h2 {
+  color: #072589;
+  font-weight: bold;
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.full-width-text h4,
+.description-text h4 {
+  color: #072589;
+  font-weight: bold;
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+}
+
+.full-width-text p,
+.description-text p {
+  color: #000000;
+  font-weight: normal;
+  font-size: 1rem;
+  line-height: 1.6;
+}
