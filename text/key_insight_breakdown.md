@@ -1,0 +1,4 @@
+- Transparency is uneven across components: Parameters and compute are more frequently reported or easily inferred than training data and dataset size.
+- Regional trends are not uniform: Some regions excel in one area (e.g., compute) but lag in others—suggesting localized disclosure norms or constraints.
+- Research collectives and cross-sector efforts consistently lead in transparency, reinforcing the value of collaboration and open science practices.
+- Closed models (API or hosted) are the least transparent across nearly all components—supporting earlier findings that access limitations often coincide with opaque inputs.

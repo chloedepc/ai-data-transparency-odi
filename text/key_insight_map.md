@@ -1,0 +1,3 @@
+- High output countries (e.g., US, UK, China) show lower average transparency
+- Countries with small sample sizes like Russia, Ireland, and UAE, exhibit the highest scores, although these results may not represent broader trends
+- Switzerland, Japan, and India have the highest average transparency among countries with over 10 models, likely due to research-focused development

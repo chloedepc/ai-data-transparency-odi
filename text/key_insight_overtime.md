@@ -1,0 +1,3 @@
+- Training data and dataset size transparency have dropped the most—suggesting developers are increasingly withholding details about foundational inputs.
+- Filtering by organization type reveals distinct trajectories—Industry-led models have seen faster declines, while Academia shows more regional variation.
+- Industry-academia collaborations have seen improvement in parameter and compute disclosures in the past three years, but training data and dataset size transparency have declined, potentially due to a smaller number of models recorded in 2024 and 2025.

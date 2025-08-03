@@ -552,9 +552,7 @@ visual_explorer = html.Div([
         # Transparency Score Distribution Description
         html.Div([
             html.H2("Do organizational norms shape transparency?"),
-            dcc.Markdown("""
-            Placeholder Text
-         """)
+            dcc.Markdown(load_markdown("text/org_transparency.md")),
         ], className="sidebar"),
 
         # Transparency Score Distribution and Variance Visuals
@@ -567,8 +565,10 @@ visual_explorer = html.Div([
 
         # Key Insight Box Visual 1 
     html.Div([
-        html.H4("Key insight"),
-        html.P("Placeholder text.")
+        html.H4(["Key insight: ",
+                 html.Em("Collaborative governance structures may drive more responsible disclosure, especially when there is public sector involvement."),
+        ]),
+        dcc.Markdown(load_markdown("text/key_insight_org.md")),
     ], className='insight-box'),
 
     # ------ Section 3: Transparency Across Model Accessibility -----
@@ -576,9 +576,7 @@ visual_explorer = html.Div([
     html.Div([
         html.Div([
             html.H2("Does openness equal transparency?"),
-            dcc.Markdown("""
-            Text Placeholder
-         """)
+            dcc.Markdown(load_markdown("text/accessibility_transparency.md"))
         ], className="sidebar"),
     
         html.Div([
@@ -588,8 +586,10 @@ visual_explorer = html.Div([
 
         # Key Insight Box Visual 2 
     html.Div([
-        html.H4("Key insight"),
-        html.P("Placeholder text.")
+        html.H4(["Key insight: ",
+                html.Em("Open release does not necessarily mean transparent development—an essential distinction for audits, reproducibility, and responsible AI governance.")
+        ]),
+        dcc.Markdown(load_markdown("text/key_insight_access.md"))
     ], className='insight-box'),
 
     # ------- Section 4: Global Transparency Overview ------
@@ -597,9 +597,7 @@ visual_explorer = html.Div([
     html.Div([
         html.Div([
             html.H2("Mapping data transparency around the world"),
-            dcc.Markdown("""
-            Text Placeholder
-         """)
+            dcc.Markdown(load_markdown("text/map.md"))
         ], className="sidebar"),
     
         html.Div([
@@ -627,8 +625,10 @@ visual_explorer = html.Div([
 
         # Key Insight Box Visual 3
     html.Div([
-        html.H4("Key insight"),
-        html.P("Placeholder text.")
+        html.H4(["Key insight: ",
+                 html.Em("Transparency is often driven by research norms or institutional initiatives")
+        ]),
+        dcc.Markdown(load_markdown("text/key_insight_map.md"))
     ], className='insight-box'),
 
     # ------ Section 5: Component-Level Transparency Heatmap -----
@@ -636,9 +636,7 @@ visual_explorer = html.Div([
     html.Div([
         html.Div([
             html.H2("Behind the scores - a transparency breakdown"),
-            dcc.Markdown("""
-            Text Placeholder
-         """)
+            dcc.Markdown(load_markdown("text/breakdown_transparency.md"))
         ], className="sidebar"),
     
         html.Div([
@@ -655,8 +653,10 @@ visual_explorer = html.Div([
 
         # Key Insight Box Visual 4
     html.Div([
-        html.H4("Key insight"),
-        html.P("Most open models tend to have higher transparency scores.")
+        html.H4(["Key insight: ",
+                html.Em("Training data remains the weakest link in transparency across all dimensions, underscoring a major gap for accountability, auditability, and governance.")
+        ]),
+        dcc.Markdown(load_markdown("text/key_insight_breakdown.md"))
     ], className='insight-box'),
 
 
@@ -665,9 +665,7 @@ visual_explorer = html.Div([
     html.Div([
         html.Div([
             html.H2("Is transparency improving - or regressing?"),
-            dcc.Markdown("""
-            Text Placeholder
-         """)
+            dcc.Markdown(load_markdown("text/overtime_transparency.md"))
         ], className="sidebar"),
     
         html.Div([
@@ -691,20 +689,29 @@ visual_explorer = html.Div([
 
         # Key Insight Box Visual 5
     html.Div([
-        html.H4("Key insight"),
-        html.P("Placeholder text.")
+        html.H4(["Key insight: ",
+                 html.Em("Transparency peaked in 2021–2022 but has since declined, raising concerns about sustained openness in model development.")
+        ]),
+        dcc.Markdown(load_markdown("text/key_insight_overtime.md"))
     ], className='insight-box'),
 
             # ------ Data Transparency Considerations -------
     html.Div([
         html.Div([
-            html.H2("Data transparency considerations"),
-            html.H4("Notes on data confidence"),
+            html.H2("Appendix"),
+            html.H4("1. Incomplete or inferred metadata"),
             dcc.Markdown("""
-                Confidence levels indicate how certain EpochAI is in its estimate of compute values. Most estimates are tagged as 
-                'Confident' or 'Likely', though some are 'Speculative', especially for models with limited public disclosures.
+                Epoch AI attaches confidence levels to its compute estimates:
+                - 288 models are “Confident” estimates
+                - Others are marked as “Likely”, “Spectulative”, or “Unknown”
+                - This adds nuance to the data quality–and signals which disclosures are more verifiable 
+                - All insights should be interpreted with this estimation uncertainty in mind
                         """
                     ),
+            dcc.Markdown("""
+                        Aside from the compute estimates, missing data was generally treated as “not reported” 
+                        across all relevant fields for scoring purposes, which may under- or overestimate transparency depending on context.
+                        """)
                 ], className='notes-sidebar'),
  
         html.Div([
@@ -712,6 +719,9 @@ visual_explorer = html.Div([
             ], className='notes-visual')
     ], className='notes-section'),
 
+    html.Div([
+        dcc.Markdown(load_markdown("text/appendix.md"))
+    ], className='notes-section')
 ])
 
 
