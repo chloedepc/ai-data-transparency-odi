@@ -183,6 +183,48 @@ summary_table2 = dash_table.DataTable(
     ]
 )
 
+#----------------------------
+# Variable Tables
+#----------------------------
+
+def make_meta_table(rows, columns=("Variable", "Description", "Type and Source")):
+    return dash_table.DataTable(
+        columns=[{"name": c, "id": c} for c in columns],
+        data=rows,                              # list[dict] from tables_data.py
+        style_table={'overflowX': 'auto'},
+        style_header={
+            'backgroundColor': '#072589',
+            'color': 'white',
+            'fontWeight': 'bold',
+            'textAlign': 'left',
+            'fontFamily': 'Helvetica Neue, Helvetica, Arial, sans-serif'
+        },
+        style_data={
+            'backgroundColor': 'white',
+            'color': 'black',
+            'textAlign': 'left',
+            'fontFamily': 'Helvetica Neue, Helvetica, Arial, sans-serif',
+            'fontSize': '14px',
+            'whiteSpace': 'pre-line',   
+            'height': 'auto',
+            'lineHeight': '1.25rem'
+        },
+        style_cell={'padding': '8px'},
+        style_data_conditional=[
+            {'if': {'column_id': columns[0]}, 'fontWeight': 'bold'}  # first col bold
+        ],
+    )
+
+from components.tables_data import (
+    model_id_vars, model_access_vars, app_specific_vars,
+    finetune_vars, core_transparency_vars
+)
+
+model_id_table          = make_meta_table(model_id_vars)
+model_access_table      = make_meta_table(model_access_vars)
+app_specific_table      = make_meta_table(app_specific_vars)
+finetune_table          = make_meta_table(finetune_vars)
+core_transparency_table = make_meta_table(core_transparency_vars)
 
 #----------------------------
 # Data Preparation for figures
@@ -293,7 +335,7 @@ transparency_hist_fig = px.histogram(
     color='org_category',
     nbins=6,
     width=700,  
-    height=500,
+    height=450,
     barmode='stack',
     title='Distribution of Transparency Scores by Developer Organization Type',
     category_orders={"transparency_score": sorted(df_dashboard["transparency_score"].unique())},
@@ -504,7 +546,6 @@ about_project = html.Div([
             dcc.Markdown(load_markdown("text/about_project.md")),
             html.H2("About the researcher"),
             dcc.Markdown(load_markdown("text/about_researcher.md")),
-            html.H2("Methodology"),
         ], className='text-inner')
     ], className="description-text")
 ])
@@ -516,12 +557,32 @@ understanding_data = html.Div([
         html.Div([
             html.H2("Understanding the dataset"),
             dcc.Markdown(load_markdown("text/understanding_data.md")),
+
+            html.Div([
+                html.H4("Model identification variables", className="table-title"),
+                model_id_table,
+
+                html.H4("Model accessibility", className="table-title"),
+                model_access_table,
+
+                html.H4("Application-specific variables", className="table-title"),
+                app_specific_table,
+
+                html.H4("Finetuned model variables", className="table-title"),
+                finetune_table,
+
+                html.H4("Core data transparency variables", className="table-title"),
+                core_transparency_table,
+            ], className='data-table'),
+
             html.H2("Transparency score"),
-            dcc.Markdown(load_markdown("text/transparency_score.md"))
+            dcc.Markdown(load_markdown("text/transparency_score.md")),
+            html.H2("Transparency at a glance"),
+            dcc.Markdown(load_markdown("text/transparency_at_a_glance.md")),
         ], className='text-inner')
     ], className='description-text'),
 
-    # Side-by-side tables
+    ## Side-by-side tables with annotation
     html.Div([
         html.Div([
             html.H4("Models trained from scratch", className="table-title"),
@@ -534,32 +595,45 @@ understanding_data = html.Div([
         ])
     ], className="side-by-side-tables"),
 
+    # Annotation below both tables, left-aligned
+    html.P(
+        "Statistics reflect only models classified as trained from scratch. "
+        "Sample size and organization type may influence regional averages.",
+        className="table-annotation"
+    ),
+
     # Text below tables
     html.Div([
         html.Div([
-            dcc.Markdown("""
-            Placeholder text. 
-            """),
+            dcc.Markdown(load_markdown("text/transparency_tables_takeaways.md")),
         ], className='text-inner')
     ], className='description-text')
 ])
 
-# Visual explorer section
+# Visual explorer section   
 
 visual_explorer = html.Div([
      # ------- Section 2: Histogram with side narrative --------
     html.Div([
         # Transparency Score Distribution Description
         html.Div([
-            html.H2("Do organizational norms shape transparency?"),
+            html.H2("Do organisational norms shape transparency?"),
             dcc.Markdown(load_markdown("text/org_transparency.md")),
         ], className="sidebar"),
 
         # Transparency Score Distribution and Variance Visuals
         html.Div([
+            html.P(
+                "Hover over the outliers to see the models that stray away from their organization category.",
+                className="visual-note"
+            ),
             dcc.Graph(figure=transparency_hist_fig),
             html.Br(),
-            dcc.Graph(figure=transparency_box_fig)
+            dcc.Graph(figure=transparency_box_fig),
+            html.P(
+                "Note: Legacy models in the dataset may drag down scores; these may predate transparency norms and not reflect current practices.",
+                className="visual-annotation"
+            ),
         ], className='visual')
     ], className='section'),
 
@@ -580,7 +654,17 @@ visual_explorer = html.Div([
         ], className="sidebar"),
     
         html.Div([
-            dcc.Graph(figure=accessibility_box_plot)
+            html.P(
+                "Hover over the outliers to see the models that stray away from their model accessibility category.",
+                className="visual-note"
+            ),
+            dcc.Graph(figure=accessibility_box_plot),
+            html.P(
+                "Note: “Open weights (restricted use)” typically refers to models released for non-commercial or research-only use. " 
+                "While access is limited by license, these models are often developed by research-driven teams and tend to be among the most transparently documented. "
+                "The restricted-use open weights group includes a relatively small number of models, which may amplify consistency and skew averages.",
+                className="visual-annotation"
+            ),
         ], className='visual')
     ], className='section'),
 
@@ -601,6 +685,9 @@ visual_explorer = html.Div([
         ], className="sidebar"),
     
         html.Div([
+            html.P("Use the year dropdowns to filter the global heatmap to a select model publication range and observe how transparency trends evolve geographically. ",
+                className="visual-note"
+            ),
             html.Label("Select start year:"),
             dcc.Dropdown(
                 id="start-year-dropdown",
@@ -618,10 +705,17 @@ visual_explorer = html.Div([
                 clearable=True,
                 placeholder="End year",
             ),
-            dcc.Graph(id="geomap")
+            dcc.Graph(id="geomap"),
+            html.P("Notes:", className="visual-annotation"),
+            html.Ul([
+                html.Li("Unshaded countries: These countries did not have any models with recorded country associations in the dataset."),
+                html.Li("Model counts: This visual represents the number of models associated with each country, but does not account for cross-country developer collaborations. Geopolitical attribution in AI development is often more complex."),
+                html.Li("Transparency variation: Transparency scores vary by country, but the results reflect recorded associations, not necessarily the lead developer or the full development context."),
+                html.Li("Smaller countries may appear highly transparent due to a small number of standout models – averages should be interpreted alongside the model counts."),
+                html.Li("Collaboration not captured: This map reduces models associated with multiple countries to a single country tag, which may underrepresent international efforts. Certain multinational developer organizations are also not captured in the map, further complicating geographic attribution."),
+            ], className="visual-annotation"),
         ], className='visual')
     ], className='section'),
-
 
         # Key Insight Box Visual 3
     html.Div([
@@ -631,45 +725,22 @@ visual_explorer = html.Div([
         dcc.Markdown(load_markdown("text/key_insight_map.md"))
     ], className='insight-box'),
 
-    # ------ Section 5: Component-Level Transparency Heatmap -----
-
+    # ------ Section 5: Time Series Chart --------
     html.Div([
         html.Div([
-            html.H2("Behind the scores - a transparency breakdown"),
-            dcc.Markdown(load_markdown("text/breakdown_transparency.md"))
-        ], className="sidebar"),
-    
-        html.Div([
-            html.Label("Select transparency dimension:", style={"marginTop": "20px"}),
-            dcc.Dropdown(
-                id="comparison-dropdown",
-                options=[{"label": k, "value": v} for k, v in dropdown_options.items()],
-                value="org_region",  # Default selection
-                clearable=False,
-            ),
-            dcc.Graph(id="heatmap-graph")
-        ], className='visual')
-    ], className='section'),
-
-        # Key Insight Box Visual 4
-    html.Div([
-        html.H4(["Key insight: ",
-                html.Em("Training data remains the weakest link in transparency across all dimensions, underscoring a major gap for accountability, auditability, and governance.")
-        ]),
-        dcc.Markdown(load_markdown("text/key_insight_breakdown.md"))
-    ], className='insight-box'),
-
-
-    # ------ Section 6: Time Series Chart --------
-
-    html.Div([
-        html.Div([
-            html.H2("Is transparency improving - or regressing?"),
+            html.H2("Is transparency improving or regressing?"),
             dcc.Markdown(load_markdown("text/overtime_transparency.md"))
         ], className="sidebar"),
     
         html.Div([
-            html.Label("Select developer organization type:", style={"marginTop": "20px"}),
+            html.P("Use the dropdown filter to explore trends based on developer organisation type, allowing for a deeper comparison of how transparency patterns vary across Industry, Academia, and Industry-Academia Collaborations "
+                   "(other types are excluded due to insufficient data to visualise clear trends).",
+                className="visual-note"
+            ),
+            html.P("Hover over individual points in the chart to view more detailed information, including exact transparency scores, model counts, and the year-by-year breakdown.",
+                className="visual-note"
+            ),
+            html.Label("Select developer organisation type:", style={"marginTop": "20px"}),
             dcc.Dropdown(
                 id="org-category-dropdown",
                 options=[
@@ -682,18 +753,64 @@ visual_explorer = html.Div([
                 clearable=False
             ),
             dcc.Graph(id="time-series-chart"),
-            dcc.Graph(id="component-transparency-chart")
+            dcc.Graph(id="component-transparency-chart"),
+            html.P(
+                "Note: Recent years (2024–2025) should be interpreted with caution due to potential lag in documentation or incomplete records. Small sample sizes can skew averages.",
+                className="visual-annotation"
+            ),
         ], className='visual')
     ], className='section'),
 
 
-        # Key Insight Box Visual 5
+        # Key Insight Box Visual 4
     html.Div([
         html.H4(["Key insight: ",
                  html.Em("Transparency peaked in 2021–2022 but has since declined, raising concerns about sustained openness in model development.")
         ]),
         dcc.Markdown(load_markdown("text/key_insight_overtime.md"))
     ], className='insight-box'),
+
+    # ------ Section 6: Component-Level Transparency Heatmap -----
+
+    html.Div([
+        html.Div([
+            html.H2("Behind the scores: a transparency breakdown"),
+            dcc.Markdown(load_markdown("text/breakdown_transparency.md"))
+        ], className="sidebar"),
+    
+        html.Div([
+            html.P("Use the heatmap to explore component-level transparency across three dimensions: developer region, developer organisation type, model accessibility.",
+                className="visual-note"
+            ),
+            html.P("Together, they offer a more granular view of transparency, revealing not just who scores higher—but how and why.",
+                className="visual-note"
+            ),
+            html.Label("Select transparency dimension:", style={"marginTop": "20px"}),
+            dcc.Dropdown(
+                id="comparison-dropdown",
+                options=[{"label": k, "value": v} for k, v in dropdown_options.items()],
+                value="org_region",  # Default selection
+                clearable=False,
+            ),
+            dcc.Graph(id="heatmap-graph")
+        ], className='visual')
+    ], className='section'),
+
+        # Key Insight Box Visual 5
+    html.Div([
+        html.H4(["Key insight: ",
+                html.Em("Training data remains the weakest link in transparency across all dimensions, underscoring a major gap for accountability, auditability, and governance.")
+        ]),
+        dcc.Markdown(load_markdown("text/key_insight_breakdown.md"))
+    ], className='insight-box'),
+
+        # Recommendations
+    html.Div([
+        html.Div([
+            html.H2("Recommendations for a more transparent AI ecosystem"),
+            dcc.Markdown(load_markdown("text/recommendations.md")),
+        ], className='text-inner')
+    ], className="description-text"),
 
             # ------ Data Transparency Considerations -------
     html.Div([
@@ -711,7 +828,8 @@ visual_explorer = html.Div([
             dcc.Markdown("""
                         Aside from the compute estimates, missing data was generally treated as “not reported” 
                         across all relevant fields for scoring purposes, which may under- or overestimate transparency depending on context.
-                        """)
+                        """),
+            dcc.Markdown(load_markdown("text/appendix.md"))
                 ], className='notes-sidebar'),
  
         html.Div([
@@ -720,8 +838,13 @@ visual_explorer = html.Div([
     ], className='notes-section'),
 
     html.Div([
-        dcc.Markdown(load_markdown("text/appendix.md"))
-    ], className='notes-section')
+        html.Div([
+            html.H2("Final refelctions"),
+            dcc.Markdown(load_markdown("text/final_reflections.md")),
+            html.H4("References"),
+            dcc.Markdown(load_markdown("text/references.md")),
+        ], className='text-inner')
+    ], className="description-text"),
 ])
 
 
@@ -805,7 +928,7 @@ def update_heatmap(comparison_column):
         yaxis=dict(tickfont=dict(size=12), title_font=dict(size=14)),
         font=dict(family='Helvetica Neue, Helvetica, Arial, sans-serif'),
         title_font_size=15,
-        height=600
+        height=500
     )
     return transparency_heatmap_fig
 

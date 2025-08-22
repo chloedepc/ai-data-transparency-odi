@@ -1,4 +1,4 @@
-*The landscape of AI data transparency* visual explorer was built as part of my Master’s dissertation, in collaboration with the Open Data Institute (ODI), to support their AI Data Transparency Index (AIDTI) and broader work on data-centric AI. The project started with a simple but urgent question: how accessible and consistent is the information that AI developers share about the building blocks of their models—things like training data, compute, and parameter counts?
+*The landscape of AI data transparency* visual explorer was built as part of my Master’s dissertation, in collaboration with the Open Data Institute (ODI), to support their AI Data Transparency Index (AIDTI) and broader work on data-centric AI. The project started with a simple but urgent question: how accessible and consistent is the information that AI developers share about the building blocks of their models—things like training data, compute, and parameter counts? 
 
 With regulations like the EU AI Act on the horizon, which will require developers to disclose this kind of upstream information, I wanted to understand what’s already available in the public domain. 
 

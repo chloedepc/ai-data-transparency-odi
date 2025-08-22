@@ -33,6 +33,7 @@ body {
   text-align: left;
   color: #000000;
   padding: 40px;
+  margin-top: 10px !important;
 }
 
 .side-by-side-tables {
@@ -46,6 +47,14 @@ body {
 
 .side-by-side-tables > div {
   width: 48%;
+}
+
+.table-annotation {
+    font-size: 0.9rem;
+    font-style: italic;
+    color: #444;
+    margin-top: 8px;
+    text-align: center;
 }
 
 .section {
@@ -178,8 +187,8 @@ color: #000000;
 
 
 .notes-sidebar {
-  width: 50%;
-  padding: 20px;
+  width: 60%;
+  padding: 10px;
   background-color: #E2E6E9;
   color: #000000;
 }
@@ -192,18 +201,19 @@ color: #000000;
 }
 
 .notes-sidebar h4 {
-  color: #072589;
+  color: black;
   font-weight: bold;
   font-size: 1.25rem;
   margin-bottom: 10px;
 }
 
 .notes-visual {
-    width: 50%;
-    padding: 40px;
+    width: 40%;
+    padding: 10px;
     background-color: #E2E6E9;
     border-radius:10px;
-    margin-bottom: 30px;
+    margin-top: 20px;
+    margin-bottom: 10px;
     color: #072589;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif
 }
@@ -218,9 +228,13 @@ color: #000000;
   color:#000000;
 }
 
-.notes-section h4,
 .notes-section h2 {
   color: #072589;
+  font-weight: bold;
+}
+
+.notes-section h4 {
+  color: black;
   font-weight: bold;
 }
 
@@ -300,4 +314,17 @@ color: #000000;
   font-weight: normal;
   font-size: 1rem;
   line-height: 1.6;
+}
+
+.visual-note {
+    font-size: 0.85rem;
+    color: #444;
+    margin-bottom: 6px;
+}
+
+.visual-annotation {
+    font-size: 0.85rem;
+    font-style: italic;
+    color: #444;
+    margin-top: 6px;
 }

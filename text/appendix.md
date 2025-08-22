@@ -16,4 +16,4 @@ Results may be skewed by small sample sizes in some regions, organization types,
 
 ### 6. Region groupings 
 
-The regional groupings in this analysis follow the World Bank typology, which is also adopted in Stanford HAI’s latest AI Index report. These groupings are not based on AI capacities, as there is no existing AI regions typology, but are intended to provide a standardized framework for categorizing regions based on general geographic and economic characteristics.
+The regional groupings in this analysis follow the [World Bank typology](https://datatopics.worldbank.org/world-development-indicators/images/figures-png/world-by-region-map.pdf), which is also adopted in [Stanford HAI’s 2025 AI Index report](https://hai.stanford.edu/ai-index/2025-ai-index-report). These groupings are not based on AI capacities, as there is no existing AI regions typology, but are intended to provide a standardized framework for categorizing regions based on general geographic and economic characteristics.

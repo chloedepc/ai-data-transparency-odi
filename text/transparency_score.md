@@ -19,6 +19,6 @@ Each model receives one point for every one of these variables that is reported 
 
 The transparency score offers a simple, consistent lens to explore trends, gaps, and disclosure patterns across models. Its purpose is to provide a high-level, exploratory view of how often key information is made available. Each variable is equally weighted to keep the score interpretable and free from subjective judgment, helping surface patterns that may otherwise be difficult to detect across hundreds of models developed over time.
 
-To ensure consistency in scoring and visualization, the analysis includes only models that appear to be trained from scratch. Fine-tuned models were excluded to avoid conflating pretraining transparency with that of later development stages, as their metadata often reflects only the fine-tuning process and omits the more opaque pretraining details. 
+To ensure consistency in scoring and visualisation, the analysis includes only models that appear to be trained from scratch. Fine-tuned models were excluded to avoid conflating pretraining transparency with that of later development stages, as their metadata often reflects only the fine-tuning process and omits the more opaque pretraining details. 
 
 The score does not capture the full complexity of transparency, as it excludes factors such as labour and hardware use, social or environmental impacts, and other internal aspects of model development.
