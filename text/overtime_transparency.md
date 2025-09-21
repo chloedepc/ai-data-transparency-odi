@@ -1,6 +1,6 @@
-The timeline visual explores temporal trends across organisations and regions. The top chart tracks changes in the average transparency score over time, broken down by region, while the bottom chart provides a component-level breakdown of training, data, dataset size, compute, and parameters. 
+The timeline visual explores temporal trends across organizations and regions. The top chart tracks changes in the average transparency score over time, broken down by region, while the bottom chart provides a component-level breakdown of training, data, dataset size, compute, and parameters. 
 
-These visualisations help identify whether transparency documentation practices are improving and which specific factors are driving either progress or decline.
+These visualizations help identify whether transparency documentation practices are improving and which specific factors are driving either progress or decline.
 
 **Average Transparency Score Over Time**
 
@@ -8,7 +8,7 @@ These visualisations help identify whether transparency documentation practices 
 - Since then, scores have generally declined across all regions, with some regions seeing sharp drops by 2024.
 - Cross-regional collaborations and South Asia maintained higher scores longer than other regions, while North America and East Asia show notable declines post-2022.
 - Different regions exhibit distinct cycles, which may be linked to local regulations, funding norms, or competitive pressures, though all regions saw a dip post-2022. 
-- This recent decline may reflect a shift toward closed releases, growing commercialisation, or delayed reporting, as data from 2024–2025 is partial and may be incomplete.
+- This recent decline may reflect a shift toward closed releases, growing commercialization, or delayed reporting, as data from 2024–2025 is partial and may be incomplete.
 
 **Component-Level Transparency Over Time**
 
@@ -19,7 +19,7 @@ These visualisations help identify whether transparency documentation practices 
 - These trends signal a regression in upstream transparency, despite growing awareness and regulation efforts.
 
 
-**Organisation-Specific Trends**
+**Organization-Specific Trends**
 
 - Industry-Academia collaborations show mixed results: While transparency in parameters and training compute has improved in recent years, training data and dataset size disclosures have dropped. This could be due to fewer models in 2024 and 2025, which affects the overall trend. 
 - Academia shows regional differences: Europe and Central Asia have improved transparency since 2021. However, most other regions, including North America and East Asia, have seen a decline. Dataset size and training compute transparency have declined the most, while training data and parameters have seen less of a drop.

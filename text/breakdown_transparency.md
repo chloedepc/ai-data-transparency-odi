@@ -21,4 +21,4 @@ Now that we’ve seen how overall transparency scores vary across models, this s
 - **Open weights (restricted use)** models are the most consistently transparent across all components, especially on training data and parameters.
 - **API access** and **hosted** models show the lowest levels of transparency, with <40% disclosure on training data and dataset size.
 - **Unreleased** models sometimes report well on parameters and compute—but rarely disclose training data, suggesting that access alone doesn’t predict input-level transparency.
-- Across accessibility types, parameters are the most commonly reported component—while training data remains the most opaque.
+- Across accessibility types, parameters are the most commonly reported component, while training data remains the most opaque.

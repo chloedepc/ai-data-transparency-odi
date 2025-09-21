@@ -542,10 +542,10 @@ title_intro = html.Div([
 about_project = html.Div([
     html.Div([
         html.Div([
-            html.H2("About the project"),
-            dcc.Markdown(load_markdown("text/about_project.md")),
             html.H2("About the researcher"),
             dcc.Markdown(load_markdown("text/about_researcher.md")),
+            html.H2("About the project"),
+            dcc.Markdown(load_markdown("text/about_project.md")),
         ], className='text-inner')
     ], className="description-text")
 ])
@@ -607,7 +607,32 @@ understanding_data = html.Div([
         html.Div([
             dcc.Markdown(load_markdown("text/transparency_tables_takeaways.md")),
         ], className='text-inner')
-    ], className='description-text')
+    ], className='description-text'),
+
+                # ------ Data Transparency Considerations -------
+    html.Div([
+        html.Div([
+            html.H2("Appendix - Data Considerations"),
+            html.H4("1. Incomplete or inferred metadata"),
+            dcc.Markdown("""
+                Epoch AI attaches confidence levels to its compute estimates:
+                - 288 models are “Confident” estimates
+                - Others are marked as “Likely”, “Spectulative”, or “Unknown”
+                - This adds nuance to the data quality–and signals which disclosures are more verifiable 
+                - All insights should be interpreted with this estimation uncertainty in mind
+                        """
+                    ),
+            dcc.Markdown("""
+                        Aside from the compute estimates, missing data was generally treated as “not reported” 
+                        across all relevant fields for scoring purposes, which may under- or overestimate transparency depending on context.
+                        """),
+            dcc.Markdown(load_markdown("text/appendix.md"))
+                ], className='notes-sidebar'),
+ 
+        html.Div([
+            dcc.Graph(figure=confidence_fig)
+            ], className='notes-visual')
+    ], className='notes-section'),
 ])
 
 # Visual explorer section   
@@ -617,18 +642,18 @@ visual_explorer = html.Div([
     html.Div([
         # Transparency Score Distribution Description
         html.Div([
-            html.H2("Do organisational norms shape transparency?"),
+            html.H2("Do organizational norms shape transparency?"),
             dcc.Markdown(load_markdown("text/org_transparency.md")),
         ], className="sidebar"),
 
         # Transparency Score Distribution and Variance Visuals
         html.Div([
+            dcc.Graph(figure=transparency_hist_fig),
+            html.Br(),
             html.P(
                 "Hover over the outliers to see the models that stray away from their organization category.",
                 className="visual-note"
             ),
-            dcc.Graph(figure=transparency_hist_fig),
-            html.Br(),
             dcc.Graph(figure=transparency_box_fig),
             html.P(
                 "Note: Legacy models in the dataset may drag down scores; these may predate transparency norms and not reflect current practices.",
@@ -733,14 +758,14 @@ visual_explorer = html.Div([
         ], className="sidebar"),
     
         html.Div([
-            html.P("Use the dropdown filter to explore trends based on developer organisation type, allowing for a deeper comparison of how transparency patterns vary across Industry, Academia, and Industry-Academia Collaborations "
-                   "(other types are excluded due to insufficient data to visualise clear trends).",
+            html.P("Use the dropdown filter to explore trends based on developer organization type, allowing for a deeper comparison of how transparency patterns vary across Industry, Academia, and Industry-Academia Collaborations "
+                   "(other types are excluded due to insufficient data to visualize clear trends).",
                 className="visual-note"
             ),
             html.P("Hover over individual points in the chart to view more detailed information, including exact transparency scores, model counts, and the year-by-year breakdown.",
                 className="visual-note"
             ),
-            html.Label("Select developer organisation type:", style={"marginTop": "20px"}),
+            html.Label("Select developer organization type:", style={"marginTop": "20px"}),
             dcc.Dropdown(
                 id="org-category-dropdown",
                 options=[
@@ -779,7 +804,7 @@ visual_explorer = html.Div([
         ], className="sidebar"),
     
         html.Div([
-            html.P("Use the heatmap to explore component-level transparency across three dimensions: developer region, developer organisation type, model accessibility.",
+            html.P("Use the heatmap to explore component-level transparency across three dimensions: developer region, developer organization type, model accessibility.",
                 className="visual-note"
             ),
             html.P("Together, they offer a more granular view of transparency, revealing not just who scores higher—but how and why.",
@@ -809,37 +834,7 @@ visual_explorer = html.Div([
         html.Div([
             html.H2("Recommendations for a more transparent AI ecosystem"),
             dcc.Markdown(load_markdown("text/recommendations.md")),
-        ], className='text-inner')
-    ], className="description-text"),
-
-            # ------ Data Transparency Considerations -------
-    html.Div([
-        html.Div([
-            html.H2("Appendix"),
-            html.H4("1. Incomplete or inferred metadata"),
-            dcc.Markdown("""
-                Epoch AI attaches confidence levels to its compute estimates:
-                - 288 models are “Confident” estimates
-                - Others are marked as “Likely”, “Spectulative”, or “Unknown”
-                - This adds nuance to the data quality–and signals which disclosures are more verifiable 
-                - All insights should be interpreted with this estimation uncertainty in mind
-                        """
-                    ),
-            dcc.Markdown("""
-                        Aside from the compute estimates, missing data was generally treated as “not reported” 
-                        across all relevant fields for scoring purposes, which may under- or overestimate transparency depending on context.
-                        """),
-            dcc.Markdown(load_markdown("text/appendix.md"))
-                ], className='notes-sidebar'),
- 
-        html.Div([
-            dcc.Graph(figure=confidence_fig)
-            ], className='notes-visual')
-    ], className='notes-section'),
-
-    html.Div([
-        html.Div([
-            html.H2("Final refelctions"),
+            html.H2("Final reflections"),
             dcc.Markdown(load_markdown("text/final_reflections.md")),
             html.H4("References"),
             dcc.Markdown(load_markdown("text/references.md")),

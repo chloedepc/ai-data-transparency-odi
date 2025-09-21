@@ -1,4 +1,4 @@
-Transparency in AI depends on more than just technical capability—it is shaped by the norms, incentives, and regulations that determine how models are built, documented, and shared. As commercialisation accelerates, opacity around key upstream inputs, especially training data, is becoming more entrenched. To reverse this trend, researchers, policymakers, and developers must actively embed transparency into governance frameworks, research agendas, and industry standards.
+Transparency in AI depends on more than just technical capability—it is shaped by the norms, incentives, and regulations that determine how models are built, documented, and shared. As commercialization accelerates, opacity around key upstream inputs, especially training data, is becoming more entrenched. To reverse this trend, researchers, policymakers, and developers must actively embed transparency into governance frameworks, research agendas, and industry standards.
 
 **For researchers**
 
@@ -26,4 +26,7 @@ Transparency in AI depends on more than just technical capability—it is shaped
 
 **From insight to impact**
 
-Visualisation tools like this dashboard are not just research outputs, they are mechanisms for public accountability. To translate insight into impact, such tools must be integrated into policy cycles, procurement requirements, and industry benchmarks. In the best case, transparency would be measurable, enforceable, and universally expected, with every model released alongside complete, standardised, and verifiable documentation that enables meaningful scrutiny and drives continuous improvement in responsible AI.
+Visualization tools like this dashboard are not just research outputs, they are mechanisms for public accountability. To translate insight into impact, such tools must be integrated into policy cycles, procurement requirements, and industry benchmarks. In the best case, transparency would be measurable, enforceable, and universally expected, with every model released alongside complete, standardized, and verifiable documentation that enables meaningful scrutiny and drives continuous improvement in responsible AI.
+
+
+---

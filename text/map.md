@@ -1,4 +1,4 @@
-This map visualises the average transparency score of models by country, based on country-level information recorded in the dataset. Filtering by year enables the exploration of how national transparency patterns evolve over time, especially in response to governance shifts or research trends.
+This map visualizes the average transparency score of models by country, based on country-level information recorded in the dataset. Filtering by year enables the exploration of how national transparency patterns evolve over time, especially in response to governance shifts or research trends.
 
 What the map reveals:
 

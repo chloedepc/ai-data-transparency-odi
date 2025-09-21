@@ -5,6 +5,8 @@ body {
     padding: 0;
 }
 
+html, body { overflow-x: hidden; }
+
 .odi-sash {
   width: 100%;
   background-color: #072589;
